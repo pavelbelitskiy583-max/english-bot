@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>English Plan</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --card: #1a1a23;
+    --card2: #22222e;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #f1f0ff;
+    --muted: #8b8ba0;
+    --border: rgba(255,255,255,0.07);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a1a30 0%, #0f0f20 100%);
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo-text { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .streak { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 20px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--yellow); display: flex; align-items: center; gap: 5px; }
+
+  /* PROGRESS BAR */
+  .progress-section { }
+  .progress-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 7px; }
+  .progress-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 999px; transition: width 0.6s ease; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; padding: 14px 16px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex-shrink: 0; padding: 7px 16px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .tab.active { background: var(--accent); color: #fff; border-color: transparent; }
+
+  /* CONTENT */
+  .content { padding: 14px 16px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* PHASE CARD */
+  .phase-header { margin-bottom: 14px; }
+  .phase-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+  .badge-blue { background: rgba(108,99,255,0.15); color: var(--accent2); border: 1px solid rgba(108,99,255,0.25); }
+  .badge-purple { background: rgba(167,139,250,0.15); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.25); }
+  .phase-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 6px; }
+  .phase-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* GOAL CARD */
+  .goal-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; }
+  .goal-label { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 6px; }
+  .goal-text { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+  /* WEEK SELECTOR */
+  .week-selector { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .week-selector::-webkit-scrollbar { display: none; }
+  .wk { flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; }
+  .wk.active { background: var(--accent); color: #fff; border-color: transparent; }
+  .wk.done { background: rgba(34,197,94,0.15); color: var(--green); border-color: rgba(34,197,94,0.3); }
+
+  /* DAY CARD */
+  .day-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; transition: border-color .2s; }
+  .day-card.open { border-color: rgba(108,99,255,0.3); }
+  .day-head { display: flex; align-items: center; gap: 10px; padding: 13px 14px; cursor: pointer; }
+  .day-dot { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .dot-mon { background: rgba(108,99,255,0.2); color: var(--accent2); }
+  .dot-tue { background: rgba(34,197,94,0.15); color: var(--green); }
+  .dot-wed { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .dot-thu { background: rgba(239,68,68,0.15); color: var(--red); }
+  .dot-fri { background: rgba(167,139,250,0.2); color: #c4b5fd; }
+  .dot-sat { background: rgba(20,184,166,0.15); color: #2dd4bf; }
+  .dot-sun { background: rgba(255,255,255,0.07); color: var(--muted); }
+  .day-info { flex: 1; min-width: 0; }
+  .day-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .day-theme { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .day-right { display: flex; align-items: center; gap: 8px; }
+  .day-mins { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .day-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all .2s; cursor: pointer; flex-shrink: 0; }
+  .day-check.done { background: var(--green); border-color: var(--green); }
+  .chevron { font-size: 12px; color: var(--muted); transition: transform .2s; }
+  .day-card.open .chevron { transform: rotate(180deg); }
+
+  .day-body { padding: 0 14px 14px; border-top: 1px solid var(--border); display: none; }
+  .day-card.open .day-body { display: block; }
+
+  /* STEPS */
+  .steps { margin: 12px 0; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; gap: 10px; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-body {}
+  .step-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .step-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+  .step-link { color: var(--accent2); font-size: 12px; text-decoration: none; }
+
+  /* HW BOX */
+  .hw-box { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 12px; margin-top: 12px; }
+  .hw-title { font-size: 12px; font-weight: 600; color: var(--yellow); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .hw-items { display: flex; flex-direction: column; gap: 6px; }
+  .hw-item { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.5; }
+  .hw-checkbox { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid rgba(245,158,11,0.4); flex-shrink: 0; margin-top: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; background: transparent; }
+  .hw-checkbox.checked { background: var(--yellow); border-color: var(--yellow); }
+  .hw-checkbox.checked::after { content: '✓'; color: #000; font-size: 11px; font-weight: 700; }
+
+  /* SUBMIT BTN */
+  .submit-btn { width: 100%; margin-top: 12px; padding: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 12px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .submit-btn:active { opacity: 0.8; }
+
+  /* RESOURCES */
+  .res-section { margin-bottom: 18px; }
+  .res-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .res-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
+  .res-emoji { font-size: 24px; flex-shrink: 0; }
+  .res-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .res-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 6px; }
+  .res-tag { display: inline-block; background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.2); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
+  .res-link { display: inline-block; background: rgba(108,99,255,0.15); color: var(--accent2); border: 1px solid rgba(108,99,255,0.25); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 500; text-decoration: none; margin-left: 4px; }
+
+  /* TIPS */
+  .tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; display: flex; gap: 12px; }
+  .tip-emoji { font-size: 24px; flex-shrink: 0; }
+  .tip-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .tip-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* BOTTOM NAV */
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15,15,19,0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); z-index: 200; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; transition: color .2s; color: var(--muted); }
+  .nav-item.active { color: var(--accent2); }
+  .nav-icon { font-size: 22px; }
+  .nav-label { font-size: 10px; font-weight: 500; }
+
+  /* OVERVIEW */
+  .ov-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .ov-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; transition: border-color .2s; }
+  .ov-card:active { border-color: var(--accent); }
+  .ov-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .ov-name { font-size: 15px; font-weight: 600; }
+  .ov-months { font-size: 12px; color: var(--muted); }
+  .ov-bar { height: 4px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+  .ov-fill { height: 100%; border-radius: 999px; }
+  .fill-green { background: linear-gradient(90deg, #22c55e, #4ade80); }
+  .fill-blue { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .fill-purple { background: linear-gradient(90deg, #a78bfa, #c4b5fd); }
+  .ov-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .ov-arrow { color: var(--muted); font-size: 18px; flex-shrink: 0; }
+
+  /* STATS GRID */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 700; letter-spacing: -1px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  /* MOTIVATION */
+  .motivation { background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(167,139,250,0.1)); border: 1px solid rgba(108,99,255,0.2); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; text-align: center; }
+  .motivation-emoji { font-size: 32px; margin-bottom: 8px; }
+  .motivation-text { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+  .section-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.3px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🇬🇧</div>
+      <div class="logo-text">English Plan</div>
+    </div>
+    <div class="streak" id="streakEl">🔥 <span id="streakNum">0</span> дней</div>
+  </div>
+  <div class="progress-section">
+    <div class="progress-labels">
+      <span id="progressLabel">Прогресс программы</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('overview')">🏠 Главная</button>
+  <button class="tab" onclick="showTab('m12')">Мес 1–2</button>
+  <button class="tab" onclick="showTab('m34')">Мес 3–4</button>
+  <button class="tab" onclick="showTab('m56')">Мес 5–6</button>
+  <button class="tab" onclick="showTab('resources')">🔗 Ресурсы</button>
+  <button class="tab" onclick="showTab('tips')">💡 Советы</button>
+</div>
+
+<div class="content">
+
+<!-- ══════ OVERVIEW ══════ -->
+<div class="screen active" id="screen-overview">
+  <div class="motivation">
+    <div class="motivation-emoji">🎯</div>
+    <div class="motivation-text">Ты начал этот путь потому что чувствовал себя беспомощно за границей.<br><strong>Через 6 месяцев всё будет иначе.</strong></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="statDays">0</div>
+      <div class="stat-label">дней занятий</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statWords">0</div>
+      <div class="stat-label">слов изучено</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statHW">0</div>
+      <div class="stat-label">ДЗ сдано</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statStreak">0</div>
+      <div class="stat-label">дней подряд</div>
+    </div>
+  </div>
+
+  <div class="section-title">Программа обучения</div>
+  <div class="ov-cards">
+    <div class="ov-card" onclick="showTab('m12')">
+      <div class="ov-top"><span class="ov-name">🟢 Этап 1 — Фундамент</span><span class="ov-months">Мес. 1–2</span></div>
+      <div class="ov-bar"><div class="ov-fill fill-green" style="width:0%" id="prog1"></div></div>
+      <div class="ov-desc">500 слов, фразы выживания, основы грамматики. Цель: не молчать когда к тебе обращаются.</div>
+    </div>
+    <div class="ov-card" onclick="showTab('m34')">
+      <div class="ov-top"><span class="ov-name">🔵 Этап 2 — Понимание</span><span class="ov-months">Мес. 3–4</span></div>
+      <div class="ov-bar"><div class="ov-fill fill-blue" style="width:0%" id="prog2"></div></div>
+      <div class="ov-desc">Слушание живой речи, диалоги, 1000 слов. Цель: понять 60% разговора иностранца.</div>
+    </div>
+    <div class="ov-card" onclick="showTab('m56')">
+      <div class="ov-top"><span class="ov-name">🟣 Этап 3 — Свобода</span><span class="ov-months">Мес. 5–6</span></div>
+      <div class="ov-bar"><div class="ov-fill fill-purple" style="width:0%" id="prog3"></div></div>
+      <div class="ov-desc">Реальные разговоры, фильмы, дневник. Цель: 15 минут диалога без паники.</div>
+    </div>
+  </div>
+
+  <div class="tip-card">
+    <div class="tip-emoji">⚡</div>
+    <div><div class="tip-title">Главное правило</div><div class="tip-text">30 минут каждый день важнее 4 часов раз в неделю. Отметь сегодняшний день — нажми кнопку ниже.</div></div>
+  </div>
+
+  <button class="submit-btn" onclick="markToday()">✅ Отметить сегодня как выполненный</button>
+</div>
+
+<!-- ══════ МЕС 1–2 ══════ -->
+<div class="screen" id="screen-m12">
+  <div class="phase-header">
+    <div class="phase-badge badge-green">🟢 Этап 1</div>
+    <div class="phase-title">Месяцы 1–2 — Фундамент</div>
+    <div class="phase-sub">Звуки, базовые слова и фразы выживания. Никакой грамматики ради грамматики — только то, что нужно в реальной жизни.</div>
+  </div>
+  <div class="goal-card">
+    <div class="goal-label">Цель к концу 2-го месяца</div>
+    <div class="goal-text">500 слов. Умеешь представиться, купить в магазине, спросить дорогу, понять простой ответ. Не паникуешь когда к тебе обращаются.</div>
+  </div>
+
+  <div class="week-selector">
+    <div class="wk active" onclick="showWeek('m12',this,1)">Н1</div>
+    <div class="wk" onclick="showWeek('m12',this,2)">Н2</div>
+    <div class="wk" onclick="showWeek('m12',this,3)">Н3</div>
+    <div class="wk" onclick="showWeek('m12',this,4)">Н4</div>
+    <div class="wk" onclick="showWeek('m12',this,5)">Н5</div>
+    <div class="wk" onclick="showWeek('m12',this,6)">Н6</div>
+    <div class="wk" onclick="showWeek('m12',this,7)">Н7</div>
+    <div class="wk" onclick="showWeek('m12',this,8)">Н8</div>
+  </div>
+
+  <div id="week-m12-1">
+    <div class="day-card" id="dc-mon">
+      <div class="day-head" onclick="toggleDay('dc-mon')">
+        <div class="day-dot dot-mon">Пн</div>
+        <div class="day-info">
+          <div class="day-name">Понедельник</div>
+          <div class="day-theme">Установка Anki + первые 20 слов</div>
+        </div>
+        <div class="day-right">
+          <span class="day-mins">30 мин</span>
+          <div class="day-check" id="check-mon" onclick="toggleCheck(event,'check-mon')"></div>
+          <span class="chevron">▼</span>
+        </div>
+      </div>
+      <div class="day-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Скачай Anki</div><div class="step-desc">Зайди на <a class="step-link" href="https://apps.ankiweb.net" target="_blank">apps.ankiweb.net</a> — скачай бесплатно. На Android: AnkiDroid (бесплатно). На iOS используй веб-версию ankiweb.net. Зарегистрируйся для синхронизации.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Скачай колоду "Top 3000 English Words"</div><div class="step-desc">В Anki → «Получить общие колоды» → ищи "Top 3000 English Words" или "Core 2000". Это самые частые слова — покрывают 90% разговорной речи.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Первые 20 карточек — 15 мин</div><div class="step-desc">Запусти колоду. Слово появится — попробуй угадать. Нажми «Показать ответ» → оцени себя честно. Anki сам решит когда повторить — это интервальное повторение.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">BBC Learning English — 10 мин</div><div class="step-desc">YouTube: <a class="step-link" href="https://youtube.com/@bbclearningenglish" target="_blank">BBC Learning English</a> → плейлист "English in a Minute". Смотри первые 3 видео. Просто слушай и читай субтитры.</div></div></div>
+        </div>
+        <div class="hw-box">
+          <div class="hw-title">📝 Домашнее задание</div>
+          <div class="hw-items">
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Anki установлена и колода скачана</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Прошёл первые 20 карточек</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Посмотрел 3 видео BBC English in a Minute</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Написал боту какие 3 слова запомнил лучше всего</span></div>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="sendToBotHW('Проверь моё ДЗ — Понедельник Неделя 1. Я установил Anki, скачал колоду и прошёл 20 карточек. Дай мне мини-тест на базовые слова и объясни как правильно пользоваться интервальным повторением.')">📤 Сдать ДЗ боту</button>
+      </div>
+    </div>
+
+    <div class="day-card" id="dc-tue">
+      <div class="day-head" onclick="toggleDay('dc-tue')">
+        <div class="day-dot dot-tue">Вт</div>
+        <div class="day-info"><div class="day-name">Вторник</div><div class="day-theme">Звуки английского — почему мы не понимаем</div></div>
+        <div class="day-right"><span class="day-mins">35 мин</span><div class="day-check" id="check-tue" onclick="toggleCheck(event,'check-tue')"></div><span class="chevron">▼</span></div>
+      </div>
+      <div class="day-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Anki — 10 мин (каждое утро!)</div><div class="step-desc">Каждый день начинай с Anki. Программа сама покажет карточки которые пора повторить. Только повторяй — не добавляй новые.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Звуки которые мы произносим неправильно — 15 мин</div><div class="step-desc">YouTube: "Rachel's English — sounds of English". Главное: «th» — язык между зубами (не «з» и не «с»), «w» — губы трубочкой (не «в»), «r» — язык не касается нёба (не картавить), «v» — нижняя губа к зубам (не «в»).</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Первый shadowing — 10 мин</div><div class="step-desc">BBC Learning English. Включи субтитры. Ставь паузу после каждой фразы и повторяй вслух — точь-в-точь как диктор, копируя ритм. Чувствуешь себя глупо? Значит делаешь правильно.</div></div></div>
+        </div>
+        <div class="hw-box">
+          <div class="hw-title">📝 Домашнее задание</div>
+          <div class="hw-items">
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Anki повторение</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Посмотрел видео про звуки английского</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Сделал shadowing минимум 5 фраз вслух</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Отправил боту голосовое: "Thank you very much, I don't understand"</span></div>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="sendToBotHW('Проверь ДЗ — Вторник Неделя 1. Тема: звуки английского и shadowing. Объясни мне по-русски как правильно произносить: th, w, r, v. Потом дай 5 слов где русские часто ошибаются с произношением.')">📤 Сдать ДЗ боту</button>
+      </div>
+    </div>
+
+    <div class="day-card" id="dc-wed">
+      <div class="day-head" onclick="toggleDay('dc-wed')">
+        <div class="day-dot dot-wed">Ср</div>
+        <div class="day-info"><div class="day-name">Среда</div><div class="day-theme">10 фраз выживания за границей</div></div>
+        <div class="day-right"><span class="day-mins">35 мин</span><div class="day-check" id="check-wed" onclick="toggleCheck(event,'check-wed')"></div><span class="chevron">▼</span></div>
+      </div>
+      <div class="day-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Anki — 10 мин</div><div class="step-desc">Обязательно. Замечаешь что часть слов уже легче? Это интервальное повторение работает.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">10 фраз — выучи наизусть, 15 мин</div><div class="step-desc">Повтори каждую 5 раз вслух: Excuse me (извините), Could you repeat that? (повторите?), I don't understand (не понимаю), How much is it? (сколько стоит?), Where is the bathroom? (где туалет?), Can you help me? (помогите?), I'm sorry (извините), Thank you (спасибо), Yes / No / Maybe, Do you speak Russian? (говорите по-русски?)</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">BBC + shadowing — 10 мин</div><div class="step-desc">Ещё 2–3 видео. Записывай непонятные слова — добавишь в Anki.</div></div></div>
+        </div>
+        <div class="hw-box">
+          <div class="hw-title">📝 Домашнее задание</div>
+          <div class="hw-items">
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Anki повторение</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Выучил все 10 фраз выживания</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Написал боту все 10 фраз по-английски без подсказки</span></div>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="sendToBotHW('Проверь ДЗ — Среда Неделя 1. Проверь меня на 10 фраз выживания. Напиши мне по-русски что они значат в случайном порядке — я отвечу по-английски. Проверяй по одной фразе.')">📤 Тест на 10 фраз</button>
+      </div>
+    </div>
+
+    <div class="day-card" id="dc-thu">
+      <div class="day-head" onclick="toggleDay('dc-thu')">
+        <div class="day-dot dot-thu">Чт</div>
+        <div class="day-info"><div class="day-name">Четверг</div><div class="day-theme">Числа, время, деньги</div></div>
+        <div class="day-right"><span class="day-mins">35 мин</span><div class="day-check" id="check-thu" onclick="toggleCheck(event,'check-thu')"></div><span class="chevron">▼</span></div>
+      </div>
+      <div class="day-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Anki — 10 мин</div><div class="step-desc">Повторение. Добавь карточки с числами 1–20 если их нет.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Числа 1–100 — 10 мин</div><div class="step-desc">YouTube: "Numbers in English 1 to 100". Ловушка: thirteen (13) vs thirty (30) — разница в ударении! fourteen vs forty. Слушай и повторяй вслух.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Время по-английски — 10 мин</div><div class="step-desc">"What time is it?" → "It's three o'clock" / "It's half past two" (половина третьего) / "It's quarter to five" (без четверти пять). Смотри на часы — называй время вслух по-английски.</div></div></div>
+        </div>
+        <div class="hw-box">
+          <div class="hw-title">📝 Домашнее задание</div>
+          <div class="hw-items">
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Числа 1–20 без запинки</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Написал боту который час сейчас по-английски</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Прошёл тест на числа у бота</span></div>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="sendToBotHW('Проверь ДЗ — Четверг Неделя 1. Числовой тест: напиши мне 10 чисел цифрами — я напишу их по-английски. Потом 5 вопросов про время: покажи время цифрами, я скажу по-английски.')">📤 Тест на числа и время</button>
+      </div>
+    </div>
+
+    <div class="day-card" id="dc-fri">
+      <div class="day-head" onclick="toggleDay('dc-fri')">
+        <div class="day-dot dot-fri">Пт</div>
+        <div class="day-info"><div class="day-name">Пятница</div><div class="day-theme">Визитка — рассказать о себе</div></div>
+        <div class="day-right"><span class="day-mins">40 мин</span><div class="day-check" id="check-fri" onclick="toggleCheck(event,'check-fri')"></div><span class="chevron">▼</span></div>
+      </div>
+      <div class="day-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Anki — 10 мин</div><div class="step-desc">Повторение. Уже 60+ слов за неделю — отличный старт.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Составь «визитку» о себе — 20 мин</div><div class="step-desc">Выучи наизусть: "Hi, my name is [имя]. I'm from Russia. I'm [возраст] years old. I work as [профессия]. I like [хобби]. Nice to meet you!" Повтори 10 раз как актёр. Это твоя первая реплика с любым иностранцем.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Диалог знакомства — shadowing — 10 мин</div><div class="step-desc">YouTube: "ESL conversation for beginners" или "Basic English conversation — introducing yourself". Shadowing обоих персонажей.</div></div></div>
+        </div>
+        <div class="hw-box">
+          <div class="hw-title">📝 Домашнее задание</div>
+          <div class="hw-items">
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Составил и выучил визитку из 5–6 предложений</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Отправил визитку боту на проверку</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Ответил боту на 3 вопроса о себе по-английски</span></div>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="sendToBotHW('Проверь ДЗ — Пятница Неделя 1. Вот моя визитка на английском — проверь ошибки и исправь с объяснением каждой ошибки по-русски. После исправления сыграй иностранца и задай мне 3 вопроса о себе.')">📤 Отправить визитку на проверку</button>
+      </div>
+    </div>
+
+    <div class="day-card" id="dc-sat">
+      <div class="day-head" onclick="toggleDay('dc-sat')">
+        <div class="day-dot dot-sat">Сб</div>
+        <div class="day-info"><div class="day-name">Суббота</div><div class="day-theme">Большое повторение недели</div></div>
+        <div class="day-right"><span class="day-mins">45 мин</span><div class="day-check" id="check-sat" onclick="toggleCheck(event,'check-sat')"></div><span class="chevron">▼</span></div>
+      </div>
+      <div class="day-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Anki — 15 мин</div><div class="step-desc">В субботу больше карточек — пройди все накопившиеся повторения + 10 новых.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">BBC без субтитров — 20 мин</div><div class="step-desc">Сначала смотри с субтитрами. Потом включи то же видео снова — без субтитров. Сколько % понял?</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Говори о себе 10 мин</div><div class="step-desc">Ходи по комнате и рассказывай о себе по-английски. Всё что знаешь. Не останавливайся — даже если ошибаешься.</div></div></div>
+        </div>
+        <div class="hw-box">
+          <div class="hw-title">📝 Итог недели</div>
+          <div class="hw-items">
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Anki 5 дней подряд ✓</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>10 фраз выживания помню наизусть</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Написал боту 5 предложений о своей неделе</span></div>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="sendToBotHW('ИТОГ НЕДЕЛИ 1! Проведи финальный тест: 1) 5 фраз выживания с русского на английский 2) Числа — назову 5 по-русски, проверишь мой английский 3) Время — 3 примера 4) Моя визитка наизусть. Спрашивай по одному пункту.')">📤 Итоговый тест Недели 1</button>
+      </div>
+    </div>
+
+    <div class="day-card" id="dc-sun">
+      <div class="day-head" onclick="toggleDay('dc-sun')">
+        <div class="day-dot dot-sun">Вс</div>
+        <div class="day-info"><div class="day-name">Воскресенье</div><div class="day-theme">Отдых — только Anki</div></div>
+        <div class="day-right"><span class="day-mins">15 мин</span><div class="day-check" id="check-sun" onclick="toggleCheck(event,'check-sun')"></div><span class="chevron">▼</span></div>
+      </div>
+      <div class="day-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Только Anki — 10 мин</div><div class="step-desc">Воскресенье — отдых. Но Anki пропускать нельзя — это разрушает серию. 10 минут — и свободен.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Английский фоном — 5 мин</div><div class="step-desc">Включи что-нибудь на английском фоном — мультфильм, музыку. Ничего учить не надо — просто пусть язык звучит рядом.</div></div></div>
+        </div>
+        <div class="hw-box">
+          <div class="hw-title">📝 Воскресенье</div>
+          <div class="hw-items">
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Anki — хотя бы 5 минут</span></div>
+            <div class="hw-item"><div class="hw-checkbox" onclick="this.classList.toggle('checked')"></div><span>Отдыхаю — первая неделя позади!</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /week1 -->
+
+  <div id="week-m12-2" style="display:none">
+    <div class="goal-card"><div class="goal-label">Неделя 2 — Повседневная жизнь</div><div class="goal-text">Еда и рестораны, транспорт и дорога, покупки, погода. Первый контакт с носителем в HelloTalk.</div></div>
+    <button class="submit-btn" onclick="sendToBotHW('Я на Неделе 2 — тема: повседневная жизнь. Составь мне подробный план на эту неделю: еда, транспорт, покупки, погода. Для каждого дня — конкретные фразы для изучения и домашнее задание.')">📋 Получить план Недели 2 от учителя</button>
+  </div>
+  <div id="week-m12-3" style="display:none">
+    <div class="goal-card"><div class="goal-label">Неделя 3–4 — Время глаголов</div><div class="goal-text">Present Simple, Past Simple, Future. Первые 10 неправильных глаголов. Рассказывать о прошлом и будущем.</div></div>
+    <button class="submit-btn" onclick="sendToBotHW('Я на Неделе 3 — тема: времена глаголов. Объясни мне Present Simple, Past Simple и Future Simple простыми словами с примерами. Потом дай 10 упражнений на перевод с русского на английский.')">📋 Получить план Недели 3</button>
+  </div>
+  <div id="week-m12-4" style="display:none">
+    <div class="goal-card"><div class="goal-label">Неделя 4 — Вопросы и отрицания</div><div class="goal-text">Как задавать вопросы: who, what, where, when, why, how. Как говорить «нет»: don't, doesn't, didn't.</div></div>
+    <button class="submit-btn" onclick="sendToBotHW('Я на Неделе 4 — вопросы и отрицания. Объясни как строить вопросы с who what where when why how. Дай 10 примеров и 10 упражнений для практики.')">📋 Получить план Недели 4</button>
+  </div>
+  <div id="week-m12-5" style="display:none"><div class="goal-card"><div class="goal-label">Неделя 5 — Семья и люди</div><div class="goal-text">Описывать семью, внешность, характер. Словарный запас: 300+ слов.</div></div><button class="submit-btn" onclick="sendToBotHW('Я на Неделе 5 — тема: семья и люди. Дай план недели с конкретными словами и фразами, упражнениями каждый день.')">📋 Получить план Недели 5</button></div>
+  <div id="week-m12-6" style="display:none"><div class="goal-card"><div class="goal-label">Неделя 6 — Работа и учёба</div><div class="goal-text">Рассказать о работе, профессии, учёбе, планах. HelloTalk — первый голосовой.</div></div><button class="submit-btn" onclick="sendToBotHW('Я на Неделе 6 — тема: работа и учёба. Дай план недели с фразами и заданиями.')">📋 Получить план Недели 6</button></div>
+  <div id="week-m12-7" style="display:none"><div class="goal-card"><div class="goal-label">Неделя 7 — Здоровье</div><div class="goal-text">Симптомы, аптека, врач. "I have a headache", "I feel sick". 400+ слов.</div></div><button class="submit-btn" onclick="sendToBotHW('Я на Неделе 7 — тема: здоровье. Дай план недели с фразами у врача, в аптеке, описание симптомов.')">📋 Получить план Недели 7</button></div>
+  <div id="week-m12-8" style="display:none"><div class="goal-card"><div class="goal-label">Неделя 8 — Итог этапа 1</div><div class="goal-text">500 слов в Anki. Финальный тест: разговор, числа, времена, фразы выживания.</div></div><button class="submit-btn" onclick="sendToBotHW('ИТОГ ЭТАПА 1 — 2 месяца! Проведи комплексный экзамен: словарный тест 20 слов, разговор о себе, проверка времён глаголов, фразы выживания. Дай честную оценку моего уровня A1/A2.')">📋 Финальный экзамен этапа 1</button></div>
+</div>
+
+<!-- ══════ МЕС 3–4 ══════ -->
+<div class="screen" id="screen-m34">
+  <div class="phase-header">
+    <div class="phase-badge badge-blue">🔵 Этап 2</div>
+    <div class="phase-title">Месяцы 3–4 — Понять живую речь</div>
+    <div class="phase-sub">Научить мозг понимать английский в нормальном темпе. Больше слушания, первые живые разговоры через HelloTalk и Tandem.</div>
+  </div>
+  <div class="goal-card"><div class="goal-label">Цель к концу 4-го месяца</div><div class="goal-text">Понимаешь 60–70% живой речи. Говоришь 3–5 минут не замолкая. Словарный запас 900–1000 слов.</div></div>
+
+  <div class="tip-card"><div class="tip-emoji">📻</div><div><div class="tip-title">Подкаст «6 Minute English» — BBC</div><div class="tip-text">6 минут в день, два диктора, реальная речь. Скрипт бесплатно на сайте BBC. Слушай сначала без скрипта, потом читай — замечай разрыв.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">💬</div><div><div class="tip-title">HelloTalk — первый живой разговор</div><div class="tip-text">Скачай бесплатно. Найди носителя который учит русский. Начни: "Hi! I'm from Russia, learning English. Would you like to practice?" Переходи к голосовым сообщениям.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">📺</div><div><div class="tip-title">Сериалы с английскими субтитрами</div><div class="tip-text">Friends, The Office, Brooklyn Nine-Nine — простой язык, бытовые диалоги. Language Reactor (расширение Chrome) — бесплатно для YouTube.</div></div></div>
+
+  <button class="submit-btn" onclick="sendToBotHW('Я начинаю Месяц 3. Составь мне подробный недельный план: утреннее расписание, конкретные ресурсы для слушания, задания на HelloTalk и еженедельное ДЗ.')">📋 Получить план Месяца 3</button>
+  <br><br>
+  <button class="submit-btn" onclick="sendToBotHW('Я на Месяце 4. Проведи разговорный тест уровня A2: задавай мне вопросы по-английски на разные темы (работа, хобби, путешествия), я отвечаю. После каждого ответа давай оценку и исправляй ошибки.')">🗣 Разговорный тест Месяца 4</button>
+</div>
+
+<!-- ══════ МЕС 5–6 ══════ -->
+<div class="screen" id="screen-m56">
+  <div class="phase-header">
+    <div class="phase-badge badge-purple">🟣 Этап 3</div>
+    <div class="phase-title">Месяцы 5–6 — Говорить без паники</div>
+    <div class="phase-sub">Реальные разговоры, фильмы без субтитров, дневник на английском. Отключить внутренний цензор.</div>
+  </div>
+  <div class="goal-card"><div class="goal-label">Цель к концу 6-го месяца</div><div class="goal-text">10–15 минут диалога с иностранцем без паники. Понимаешь 80%+ живой речи. Ошибки есть — но они не останавливают. 1500+ слов.</div></div>
+
+  <div class="tip-card"><div class="tip-emoji">📓</div><div><div class="tip-title">Дневник на английском</div><div class="tip-text">Каждый вечер — 5 предложений о дне. Не думай о грамматике — просто пиши. Отправляй боту раз в неделю — он проверит и объяснит ошибки.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">🎙</div><div><div class="tip-title">Монолог вслух — 5 минут</div><div class="tip-text">Каждый день выбирай тему и говори о ней вслух 5 минут. Записывай себя раз в неделю и сравнивай. Темы: My weekend, My job, My city, My plans.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">📱</div><div><div class="tip-title">Tandem — видеозвонки</div><div class="tip-text">Бесплатное приложение. Договорись с партнёром на 20-минутный звонок. Первые 10 минут — ты по-английски, потом он по-русски. Это лучшая практика.</div></div></div>
+
+  <button class="submit-btn" onclick="sendToBotHW('Финальный этап! Начни со мной диалог по-английски — ты встречаешь меня на вечеринке как незнакомец. Веди естественный разговор 10 реплик. После — детальный разбор: что хорошо, что исправить.')">🗣 Разговорная практика с учителем</button>
+  <br><br>
+  <button class="submit-btn" onclick="sendToBotHW('ФИНАЛЬНЫЙ ЭКЗАМЕН — 6 месяцев! Тест по 3 блокам: 1) Разговор 10 минут — ты иностранец в аэропорту 2) Словарный тест 20 слов B1 3) Диктант 5 предложений. Дай честную оценку моего уровня.')">🏆 Финальный экзамен за 6 месяцев</button>
+</div>
+
+<!-- ══════ РЕСУРСЫ ══════ -->
+<div class="screen" id="screen-resources">
+  <div class="res-section">
+    <div class="res-title">📚 Слова</div>
+    <div class="res-card"><div class="res-emoji">🃏</div><div><div class="res-name">Anki</div><div class="res-desc">Интервальное повторение. Колода "Top 3000 English Words". Лучший инструмент запоминания слов из существующих.</div><span class="res-tag">Бесплатно</span><a class="res-link" href="https://apps.ankiweb.net" target="_blank">apps.ankiweb.net</a></div></div>
+  </div>
+  <div class="res-section">
+    <div class="res-title">🎧 Слушание</div>
+    <div class="res-card"><div class="res-emoji">🎬</div><div><div class="res-name">BBC Learning English</div><div class="res-desc">English in a Minute, 6 Minute English. Медленная чёткая речь, субтитры, скрипты.</div><span class="res-tag">Бесплатно</span><a class="res-link" href="https://youtube.com/@bbclearningenglish" target="_blank">YouTube</a></div></div>
+    <div class="res-card"><div class="res-emoji">🎙</div><div><div class="res-name">Подкаст 6 Minute English</div><div class="res-desc">6 минут в день. Скрипт бесплатно на сайте BBC. Для уровня A2–B1.</div><span class="res-tag">Бесплатно</span><a class="res-link" href="https://bbc.co.uk/learningenglish" target="_blank">bbc.co.uk</a></div></div>
+    <div class="res-card"><div class="res-emoji">👩‍🏫</div><div><div class="res-name">Speak English With Vanessa</div><div class="res-desc">Живая речь носителя. Произношение, разговорные фразы, реальный темп.</div><span class="res-tag">Бесплатно</span><a class="res-link" href="https://youtube.com/@SpeakEnglishWithVanessa" target="_blank">YouTube</a></div></div>
+  </div>
+  <div class="res-section">
+    <div class="res-title">💬 Практика разговора</div>
+    <div class="res-card"><div class="res-emoji">🌍</div><div><div class="res-name">HelloTalk</div><div class="res-desc">Языковой обмен. Носитель английского учит твой язык, ты учишь его. Переписка, голосовые, исправления прямо в чате.</div><span class="res-tag">Бесплатно</span></div></div>
+    <div class="res-card"><div class="res-emoji">📹</div><div><div class="res-name">Tandem</div><div class="res-desc">Видеозвонки с носителями. Для этапа 2–3. Найди постоянного партнёра — регулярность важнее качества.</div><span class="res-tag">Бесплатно</span></div></div>
+  </div>
+  <div class="res-section">
+    <div class="res-title">📺 Сериалы</div>
+    <div class="res-card"><div class="res-emoji">🎭</div><div><div class="res-name">Friends / The Office / Brooklyn 99</div><div class="res-desc">Простой разговорный английский. Language Reactor — расширение Chrome для YouTube (бесплатно): субтитры на двух языках, сохранение слов.</div><span class="res-tag">Бесплатно</span></div></div>
+  </div>
+</div>
+
+<!-- ══════ СОВЕТЫ ══════ -->
+<div class="screen" id="screen-tips">
+  <div class="tip-card"><div class="tip-emoji">⏱</div><div><div class="tip-title">30 минут каждый день > 4 часов раз в неделю</div><div class="tip-text">Мозг запоминает язык только через повторение во времени. 6 месяцев × 30 минут = 90 часов, которые реально меняют мозг.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">👂</div><div><div class="tip-title">Слушание важнее грамматики</div><div class="tip-text">Ты говоришь по-русски не потому что учил правила — а потому что тысячи часов слышал язык. Слушай как можно больше, даже фоном.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">😅</div><div><div class="tip-title">Ошибки — это прогресс, не провал</div><div class="tip-text">Носители никогда не смеются над человеком который пытается. Они ценят усилие. Говори неправильно — это лучше чем молчать правильно.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">🚫</div><div><div class="tip-title">Не учи грамматику по учебнику</div><div class="tip-text">На начальном уровне грамматика убивает мотивацию. Учи фразы целиком — мозг сам вычлет паттерны. Грамматика придёт из контекста.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">🎯</div><div><div class="tip-title">Помни зачем начал</div><div class="tip-text">Ты был за границей и чувствовал себя беспомощно. Через 6 месяцев ты спокойно говоришь с иностранцем. Этот образ вытащит тебя в трудные дни.</div></div></div>
+  <div class="tip-card"><div class="tip-emoji">🔥</div><div><div class="tip-title">Серия дней — твой главный мотиватор</div><div class="tip-text">Отмечай каждый день в боте. Серия в 30 дней — огромная мотивация её не прервать. Пропустил — не трагедия, начни новую серию.</div></div></div>
+</div>
+
+</div><!-- /content -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="showNav('overview')">
+    <div class="nav-icon">🏠</div><div class="nav-label">Главная</div>
+  </div>
+  <div class="nav-item" onclick="showNav('m12')">
+    <div class="nav-icon">📗</div><div class="nav-label">Мес 1–2</div>
+  </div>
+  <div class="nav-item" onclick="showNav('m34')">
+    <div class="nav-icon">📘</div><div class="nav-label">Мес 3–4</div>
+  </div>
+  <div class="nav-item" onclick="showNav('m56')">
+    <div class="nav-icon">📙</div><div class="nav-label">Мес 5–6</div>
+  </div>
+  <div class="nav-item" onclick="showNav('resources')">
+    <div class="nav-icon">🔗</div><div class="nav-label">Ресурсы</div>
+  </div>
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  // STATE
+  const state = JSON.parse(localStorage.getItem('eng_state') || '{}');
+  if (!state.days) state.days = 0;
+  if (!state.streak) state.streak = 0;
+  if (!state.hw) state.hw = 0;
+  if (!state.lastDate) state.lastDate = null;
+  if (!state.words) state.words = 0;
+
+  function saveState() { localStorage.setItem('eng_state', JSON.stringify(state)); }
+
+  function updateUI() {
+    document.getElementById('streakNum').textContent = state.streak;
+    document.getElementById('statDays').textContent = state.days;
+    document.getElementById('statWords').textContent = state.words;
+    document.getElementById('statHW').textContent = state.hw;
+    document.getElementById('statStreak').textContent = state.streak;
+    const pct = Math.min(100, Math.round((state.days / 180) * 100));
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+    const p1 = Math.min(100, Math.round((state.days / 60) * 100));
+    const p2 = state.days > 60 ? Math.min(100, Math.round(((state.days - 60) / 60) * 100)) : 0;
+    const p3 = state.days > 120 ? Math.min(100, Math.round(((state.days - 120) / 60) * 100)) : 0;
+    document.getElementById('prog1').style.width = p1 + '%';
+    document.getElementById('prog2').style.width = p2 + '%';
+    document.getElementById('prog3').style.width = p3 + '%';
+  }
+
+  function markToday() {
+    const today = new Date().toDateString();
+    if (state.lastDate === today) {
+      alert('Сегодня уже отмечено! Возвращайся завтра 💪');
+      return;
+    }
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (state.lastDate === yesterday) { state.streak++; } else { state.streak = 1; }
+    state.days++;
+    state.words = Math.min(1500, state.days * 8);
+    state.lastDate = today;
+    saveState();
+    updateUI();
+    alert('✅ Отлично! День ' + state.days + ' засчитан!\n🔥 Серия: ' + state.streak + ' дней подряд!');
+  }
+
+  // NAVIGATION
+  const allScreens = ['overview','m12','m34','m56','resources','tips'];
+  function showTab(id) {
+    allScreens.forEach(s => {
+      document.getElementById('screen-' + s).classList.remove('active');
+    });
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    const tabMap = {overview:0,m12:1,m34:2,m56:3,resources:4,tips:5};
+    const tabs = document.querySelectorAll('.tab');
+    if (tabMap[id] !== undefined && tabs[tabMap[id]]) tabs[tabMap[id]].classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showNav(id) {
+    showTab(id);
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navMap = {overview:0,m12:1,m34:2,m56:3,resources:4};
+    const navs = document.querySelectorAll('.nav-item');
+    if (navMap[id] !== undefined && navs[navMap[id]]) navs[navMap[id]].classList.add('active');
+  }
+
+  // WEEK TABS
+  function showWeek(phase, el, n) {
+    const prefix = 'week-' + phase + '-';
+    for (let i = 1; i <= 8; i++) {
+      const w = document.getElementById(prefix + i);
+      if (w) w.style.display = i === n ? 'block' : 'none';
+    }
+    el.closest('.week-selector').querySelectorAll('.wk').forEach(w => w.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // DAY CARDS
+  function toggleDay(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+  function toggleCheck(e, id) {
+    e.stopPropagation();
+    const el = document.getElementById(id);
+    el.classList.toggle('done');
+    if (el.classList.contains('done')) {
+      el.innerHTML = '✓';
+      state.hw++;
+      saveState();
+      updateUI();
+    } else {
+      el.innerHTML = '';
+    }
+  }
+
+  // SEND TO BOT
+  function sendToBotHW(text) {
+    if (tg) {
+      tg.sendData(text);
+    } else {
+      alert('Открой этот мини-апп через Telegram бота чтобы отправить ДЗ!');
+    }
+  }
+
+  updateUI();
+</script>
+</body>
+</html>
