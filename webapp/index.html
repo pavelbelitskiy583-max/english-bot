@@ -681,20 +681,16 @@ let testCount=0;
 
 // ── API CALL ──
 async function askClaude(messages,system){
-  const body={
-    model:'claude-sonnet-4-6',
-    max_tokens:1200,
-    system: system||`Ты учитель английского языка. Ученик учит с нуля. Правила: 1) Отвечай по-русски (объяснения). 2) Английские примеры — по-английски. 3) Будь конкретным и добрым. 4) Исправляй ошибки — объясняй каждую по-русски. 5) Всегда давай практический совет в конце.`,
-    messages
-  };
-  const r=await fetch('https://api.anthropic.com/v1/messages',{
+  const body={messages,system:system||null};
+  const r=await fetch('/api/chat',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(body)
   });
+  if(!r.ok){const e=await r.text();throw new Error(e);}
   const d=await r.json();
-  if(d.content&&d.content[0])return d.content[0].text;
-  throw new Error(JSON.stringify(d));
+  if(d.text)return d.text;
+  throw new Error(d.error||'Unknown error');
 }
 
 function showLoading(elId){
