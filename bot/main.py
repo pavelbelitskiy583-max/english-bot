@@ -2,7 +2,7 @@ import os
 import asyncio
 import logging
 import tempfile
-from anthropic import Anthropic
+import anthropic as anthropic_lib
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 
@@ -13,7 +13,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 WEBAPP_URL = os.getenv("WEBAPP_URL", "https://your-webapp-url.com")
 
-anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
+client = anthropic_lib.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 SYSTEM_PROMPT = """Ты — персональный учитель английского языка. 
 Твой ученик учит английский с нуля и хочет через 6 месяцев свободно общаться.
@@ -157,7 +157,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.chat.send_action("typing")
 
     try:
-        response = anthropic.messages.create(
+        response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1000,
             system=SYSTEM_PROMPT,
@@ -197,7 +197,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         import base64
         audio_b64 = base64.b64encode(audio_data).decode()
 
-        response = anthropic.messages.create(
+        response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1500,
             system=SYSTEM_PROMPT,
