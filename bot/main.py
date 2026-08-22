@@ -1,9 +1,10 @@
 import os
-import logging
 import json
+import logging
+from http.server import BaseHTTPRequestHandler
 from anthropic import Anthropic
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,14 +23,23 @@ SYSTEM_PROMPT = """Ты — персональный учитель англий
 3. Будь конкретным, добрым и честным
 4. Если ученик пишет по-английски — исправь ошибки, объясни каждую по-русски
 5. После проверки всегда давай конкретный совет что улучшить
-6. Поощряй даже маленький прогресс — мотивация критична
-7. Если ученик пишет на русском — отвечай и добавляй практическое упражнение
+6. Поощряй даже маленький прогресс
 
-ФОРМАТ ПРОВЕРКИ ДЗ:
+ФОРМАТ ПРОВЕРКИ:
 ✅ Что хорошо
 ❌ Ошибки (каждую объясни по-русски)
 💡 Совет на сегодня
-⭐ Оценка (A/B/C) и слова поддержки"""
+⭐ Оценка A/B/C"""
+
+
+def call_claude(messages, system=None):
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1200,
+        system=system or SYSTEM_PROMPT,
+        messages=messages
+    )
+    return response.content[0].text
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -40,73 +50,51 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )]]
     await update.message.reply_text(
         f"👋 Привет, {user.first_name}!\n\n"
-        "Я твой личный учитель английского 🇬🇧\n\n"
-        "Просто пиши мне:\n"
-        "• По-английски — проверю и исправлю ошибки\n"
-        "• По-русски — отвечу и дам упражнение\n"
-        "• Голосовое — послушаю и дам совет\n\n"
+        "Я твой учитель английского 🇬🇧\n\n"
+        "• Пиши по-английски — проверю ошибки\n"
+        "• Пиши по-русски — отвечу и дам упражнение\n"
+        "• Отправь голосовое — дам совет\n\n"
         "Или открой план обучения 👇",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
 
 async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle data sent from Mini App via sendData()"""
     data = update.effective_message.web_app_data.data
-    logger.info(f"WebApp data received: {data[:100]}")
-
-    await update.effective_message.reply_text("⏳ Учитель думает...")
-
+    logger.info(f"WebApp data: {data[:80]}")
+    await update.effective_message.reply_text("⏳ Проверяю...")
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1200,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": data}]
-        )
-        answer = response.content[0].text
+        answer = call_claude([{"role": "user", "content": data}])
         await update.effective_message.reply_text(answer)
     except Exception as e:
-        logger.error(f"Anthropic error: {e}")
-        await update.effective_message.reply_text(
-            "⚠️ Ошибка. Попробуй написать мне напрямую в чат."
-        )
+        logger.error(f"Claude error: {e}")
+        await update.effective_message.reply_text("⚠️ Ошибка. Напиши мне в чат напрямую.")
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_message = update.message.text
-    if not user_message:
-        return
+    msg = update.message.text
+    eng = sum(1 for c in msg if c.isascii() and c.isalpha())
+    total = sum(1 for c in msg if c.isalpha())
+    is_eng = total > 3 and (eng / total) > 0.6 if total else False
 
-    # Count english chars ratio
-    eng = sum(1 for c in user_message if c.isascii() and c.isalpha())
-    total = sum(1 for c in user_message if c.isalpha())
-    is_english = total > 3 and total > 0 and (eng / total) > 0.6
-
-    if is_english:
-        prompt = f'Ученик написал по-английски для проверки:\n\n"{user_message}"\n\nПроверь как учитель. Дай подробную обратную связь.'
-    else:
-        prompt = f'Ученик написал по-русски:\n\n"{user_message}"\n\nОтветь и дай практическое упражнение на английском.'
-
+    prompt = (
+        f'Ученик написал по-английски:\n\n"{msg}"\n\nПроверь. Формат:\n✅ Что хорошо\n❌ Ошибки\n💡 Совет\n⭐ Оценка'
+        if is_eng else
+        f'Ученик написал по-русски:\n\n"{msg}"\n\nОтветь и дай практическое упражнение.'
+    )
     await update.message.chat.send_action("typing")
-
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1200,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        await update.message.reply_text(response.content[0].text)
+        answer = call_claude([{"role": "user", "content": prompt}])
+        await update.message.reply_text(answer)
     except Exception as e:
         logger.error(f"Error: {e}")
-        await update.message.reply_text("⚠️ Что-то пошло не так. Попробуй ещё раз.")
+        await update.message.reply_text("⚠️ Ошибка. Попробуй ещё раз.")
 
 
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🎤 Получил голосовое!\n\n"
-        "Напиши текстом что ты сказал — я проверю грамматику и дам совет по произношению 👇"
+        "Напиши текстом что ты сказал — проверю грамматику и дам совет по произношению 👇"
     )
 
 
