@@ -6,744 +6,946 @@
 <title>English Quest</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root {
-  --bg: #0a0a0f;
-  --bg2: #12121a;
-  --card: #1a1a26;
-  --card2: #202030;
-  --border: rgba(255,255,255,0.06);
-  --accent: #7c6af7;
-  --accent2: #a78bfa;
-  --gold: #f59e0b;
-  --gold2: #fbbf24;
-  --green: #10b981;
-  --green2: #34d399;
-  --red: #ef4444;
-  --blue: #3b82f6;
-  --text: #f0eeff;
-  --muted: #7070a0;
-  --r: 14px;
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--card:#1a1a26;--card2:#20202e;
+  --border:rgba(255,255,255,0.07);--accent:#7c6af7;--accent2:#a78bfa;
+  --gold:#f59e0b;--gold2:#fbbf24;--green:#10b981;--green2:#34d399;
+  --red:#ef4444;--blue:#3b82f6;--text:#f0eeff;--muted:#6b6b90;--r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;font-size:15px;display:flex;flex-direction:column}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;font-size:15px}
 
-/* ── SCREENS ── */
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .25s}
-.screen.active{opacity:1;pointer-events:all}
+/* SCREENS */
+.screen{position:absolute;inset:0;overflow-y:auto;padding-bottom:80px;
+  opacity:0;pointer-events:none;transition:opacity .2s;-webkit-overflow-scrolling:touch}
+.screen.on{opacity:1;pointer-events:all}
 
-/* ══════════════════════════════
-   HOME SCREEN
-══════════════════════════════ */
-#home{background:var(--bg);overflow-y:auto;padding-bottom:90px}
+/* ────── HOME ────── */
+.hero{padding:24px 16px 16px;background:linear-gradient(180deg,#170f30 0%,transparent 100%);text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(124,106,247,.15);
+  border:1px solid rgba(124,106,247,.3);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--accent2);margin-bottom:12px}
+.hero-h{font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.25;margin-bottom:6px}
+.hero-h span{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-s{font-size:13px;color:var(--muted);line-height:1.6}
 
-.home-hero{padding:28px 20px 20px;text-align:center;background:linear-gradient(180deg,#1a1030 0%,transparent 100%)}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(124,106,247,0.15);border:1px solid rgba(124,106,247,0.3);border-radius:999px;padding:5px 14px;font-size:12px;color:var(--accent2);margin-bottom:14px}
-.hero-title{font-size:26px;font-weight:800;letter-spacing:-0.5px;line-height:1.2;margin-bottom:8px}
-.hero-title span{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero-sub{font-size:14px;color:var(--muted);line-height:1.6}
+/* XP BLOCK */
+.xp-block{margin:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px}
+.xp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.xp-lv{display:flex;align-items:center;gap:9px}
+.lv-badge{width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#000}
+.lv-name{font-size:13px;font-weight:600}
+.lv-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.xp-val{font-size:13px;font-weight:600;color:var(--gold)}
+.xp-bar{height:7px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));
+  border-radius:999px;transition:width .6s ease}
 
-/* XP BAR */
-.xp-section{margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
-.xp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.xp-level{display:flex;align-items:center;gap:8px}
-.level-badge{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#000}
-.level-info{}
-.level-name{font-size:13px;font-weight:600}
-.level-sub{font-size:11px;color:var(--muted)}
-.xp-num{font-size:13px;color:var(--gold);font-weight:600}
-.xp-bar{height:8px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden}
-.xp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:999px;transition:width .6s ease}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 14px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center}
+.sv{font-size:22px;font-weight:800;letter-spacing:-.5px}
+.sv.or{background:linear-gradient(135deg,#f97316,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sv.pu{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sv.gr{background:linear-gradient(135deg,var(--green),var(--green2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sl{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* STATS ROW */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 16px 16px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;text-align:center}
-.stat-val{font-size:22px;font-weight:800;letter-spacing:-0.5px}
-.stat-val.fire{background:linear-gradient(135deg,#f97316,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-val.purple{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-val.green{background:linear-gradient(135deg,var(--green),var(--green2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+/* SECTION */
+.sec{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em;margin:14px 14px 8px}
 
-/* SECTION TITLE */
-.sec-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 16px 10px}
-
-/* TODAY CARD */
-.today-card{margin:0 16px 16px;background:linear-gradient(135deg,rgba(124,106,247,0.2),rgba(124,106,247,0.05));border:1px solid rgba(124,106,247,0.25);border-radius:var(--r);padding:16px;cursor:pointer;transition:transform .15s}
-.today-card:active{transform:scale(0.98)}
-.today-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.today-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.today-label{font-size:11px;color:var(--accent2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
-.today-title{font-size:16px;font-weight:700}
-.today-tasks{display:flex;flex-direction:column;gap:6px}
-.today-task{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
-.today-task.done{color:var(--green)}
-.task-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);flex-shrink:0}
-.today-task.done .task-dot{background:var(--green)}
-.today-btn{margin-top:14px;width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+/* TODAY */
+.today{margin:0 14px 12px;background:linear-gradient(135deg,rgba(124,106,247,.18),rgba(124,106,247,.05));
+  border:1px solid rgba(124,106,247,.25);border-radius:var(--r);padding:14px;cursor:pointer}
+.today-top{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.today-ico{width:42px;height:42px;border-radius:11px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.today-lbl{font-size:11px;color:var(--accent2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.today-tit{font-size:15px;font-weight:700}
+.today-steps{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.ts{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.ts-dot{width:5px;height:5px;border-radius:50%;background:var(--accent2);flex-shrink:0}
+.today-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px}
 
 /* MAP PREVIEW */
-.map-preview{margin:0 16px 16px}
-.map-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:border-color .15s}
-.map-item:active{border-color:var(--accent)}
-.map-item.locked{opacity:0.45;cursor:default}
-.map-item.current{border-color:rgba(124,106,247,0.4);background:rgba(124,106,247,0.08)}
-.map-item.done{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.05)}
-.mi-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.mi-icon.c{background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.mi-icon.d{background:linear-gradient(135deg,var(--green),var(--green2))}
-.mi-icon.l{background:rgba(255,255,255,0.06)}
-.mi-info{flex:1;min-width:0}
-.mi-name{font-size:14px;font-weight:600;margin-bottom:2px}
-.mi-sub{font-size:12px;color:var(--muted)}
-.mi-right{text-align:right;flex-shrink:0}
-.mi-badge{font-size:11px;padding:3px 8px;border-radius:999px;font-weight:600}
-.badge-cur{background:rgba(124,106,247,0.2);color:var(--accent2)}
-.badge-done{background:rgba(16,185,129,0.15);color:var(--green)}
-.badge-lock{background:rgba(255,255,255,0.06);color:var(--muted)}
+.mpp{margin:0 14px 10px}
+.mpi{display:flex;align-items:center;gap:10px;padding:11px 13px;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:7px;cursor:pointer;transition:border-color .15s}
+.mpi.cur{border-color:rgba(124,106,247,.4);background:rgba(124,106,247,.07)}
+.mpi.dn{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+.mpi.lk{opacity:.4;cursor:default}
+.mpi-ico{width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ico-c{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.ico-d{background:linear-gradient(135deg,var(--green),var(--green2))}
+.ico-l{background:rgba(255,255,255,.06)}
+.mpi-i{flex:1;min-width:0}
+.mpi-n{font-size:13px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mpi-s{font-size:11px;color:var(--muted)}
+.mpi-b{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;flex-shrink:0}
+.b-c{background:rgba(124,106,247,.2);color:var(--accent2)}
+.b-d{background:rgba(16,185,129,.15);color:var(--green)}
+.b-l{background:rgba(255,255,255,.06);color:var(--muted)}
 
-/* MOTIVATION */
-.motive{margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;gap:12px;align-items:flex-start}
-.motive-q{font-size:24px;flex-shrink:0}
-.motive-text{font-size:13px;color:var(--muted);line-height:1.6}
-.motive-text strong{color:var(--text)}
+/* TIP */
+.tip{display:flex;gap:10px;align-items:flex-start;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:13px;margin:0 14px 8px}
+.tip-e{font-size:20px;flex-shrink:0;margin-top:1px}
+.tip-t{font-size:13px;font-weight:600;margin-bottom:3px}
+.tip-s{font-size:12px;color:var(--muted);line-height:1.6}
 
-/* ══════════════════════════════
-   MAP SCREEN
-══════════════════════════════ */
-#map{background:var(--bg);overflow-y:auto;padding-bottom:90px}
-.map-header{padding:20px 16px 12px;display:flex;align-items:center;gap:10px}
-.map-header-icon{font-size:26px}
-.map-header-title{font-size:20px;font-weight:800;letter-spacing:-0.3px}
-.map-header-sub{font-size:13px;color:var(--muted)}
+/* ────── MAP ────── */
+.map-hd{padding:18px 14px 10px;display:flex;align-items:center;gap:10px}
+.map-hd-ico{font-size:24px}
+.map-hd-t{font-size:19px;font-weight:800;letter-spacing:-.3px}
+.map-hd-s{font-size:12px;color:var(--muted)}
 
-.phase-block{margin:0 16px 20px}
-.phase-title-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.phase-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
-.pn-1{background:linear-gradient(135deg,var(--green),var(--green2));color:#000}
-.pn-2{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.pn-3{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000}
-.phase-name{font-size:15px;font-weight:700}
-.phase-months{font-size:12px;color:var(--muted)}
-.phase-prog-bar{height:4px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;margin-bottom:12px}
-.phase-prog-fill{height:100%;border-radius:999px}
+.ph-block{margin:0 14px 18px}
+.ph-row{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.ph-n{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.pn1{background:linear-gradient(135deg,var(--green),var(--green2));color:#000}
+.pn2{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.pn3{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000}
+.ph-nm{font-size:14px;font-weight:700}
+.ph-mo{font-size:11px;color:var(--muted)}
+.ph-bar{height:4px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden;margin-bottom:10px}
+.ph-fill{height:100%;border-radius:999px}
+.pf1{background:linear-gradient(90deg,var(--green),var(--green2))}
+.pf2{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.pf3{background:linear-gradient(90deg,var(--gold),var(--gold2))}
 
-.mission-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;cursor:pointer;transition:all .2s}
-.mission-card.locked{opacity:0.4;cursor:default}
-.mission-card.active-m{border-color:rgba(124,106,247,0.4)}
-.mission-card.done-m{border-color:rgba(16,185,129,0.25)}
-.mission-head{display:flex;align-items:center;gap:12px;padding:13px 14px}
-.mission-num{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
-.mn-lock{background:rgba(255,255,255,0.06);color:var(--muted)}
-.mn-active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.mn-done{background:linear-gradient(135deg,var(--green),var(--green2));color:#000}
-.mission-info{flex:1;min-width:0}
-.mission-name{font-size:14px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mission-meta{display:flex;align-items:center;gap:8px}
-.mission-xp{font-size:11px;color:var(--gold);font-weight:600}
-.mission-time{font-size:11px;color:var(--muted)}
-.mission-status{font-size:18px;flex-shrink:0}
-.mission-body{padding:0 14px 14px;display:none;border-top:1px solid var(--border)}
-.mission-card.open .mission-body{display:block}
+/* MISSION CARD */
+.mc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.mc.mc-active{border-color:rgba(124,106,247,.4)}
+.mc.mc-done{border-color:rgba(16,185,129,.25)}
+.mc.mc-locked{opacity:.38;pointer-events:none}
+.mc-head{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer}
+.mc-n{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.mn-a{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.mn-d{background:linear-gradient(135deg,var(--green),var(--green2));color:#000}
+.mn-l{background:rgba(255,255,255,.06);color:var(--muted)}
+.mc-i{flex:1;min-width:0}
+.mc-nm{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-meta{display:flex;align-items:center;gap:7px}
+.mc-xp{font-size:11px;color:var(--gold);font-weight:600}
+.mc-time{font-size:11px;color:var(--muted)}
+.mc-st{font-size:17px;flex-shrink:0}
+.mc-body{padding:0 13px 13px;border-top:1px solid var(--border);display:none}
+.mc.open .mc-body{display:block}
 
-.mission-steps{margin:12px 0;display:flex;flex-direction:column;gap:10px}
-.ms{display:flex;gap:10px;align-items:flex-start}
-.ms-num{width:20px;height:20px;border-radius:50%;background:var(--card2);color:var(--muted);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.ms-title{font-size:13px;font-weight:600;margin-bottom:2px}
-.ms-desc{font-size:12px;color:var(--muted);line-height:1.65}
-.ms-link{color:var(--accent2);font-size:12px;text-decoration:none}
+/* STEPS */
+.steps-list{margin:11px 0;display:flex;flex-direction:column;gap:9px}
+.step-row{display:flex;gap:9px}
+.step-n{width:19px;height:19px;border-radius:50%;background:var(--card2);color:var(--muted);
+  font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-t{font-size:13px;font-weight:600;margin-bottom:2px}
+.step-d{font-size:12px;color:var(--muted);line-height:1.65}
 
-.hw-block{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.18);border-radius:10px;padding:12px;margin:10px 0}
-.hw-head{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px}
-.hw-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:13px;line-height:1.5;cursor:pointer}
-.hw-cb{width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(245,158,11,0.35);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;background:transparent}
+/* HW */
+.hw-box{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);
+  border-radius:10px;padding:11px;margin:9px 0}
+.hw-hd{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.hw-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;cursor:pointer}
+.hw-cb{width:17px;height:17px;border-radius:4px;border:1.5px solid rgba(245,158,11,.35);
+  flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;background:transparent}
 .hw-cb.on{background:var(--gold);border-color:var(--gold)}
-.hw-cb.on::after{content:'✓';color:#000;font-size:11px;font-weight:800}
+.hw-cb.on::after{content:'✓';color:#000;font-size:10px;font-weight:800}
+.hw-txt{font-size:13px;line-height:1.5}
 
-.mission-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
-.mission-btn:active{opacity:0.8}
-.mission-btn.done-btn{background:linear-gradient(135deg,var(--green),var(--green2));color:#000}
+/* BUTTONS */
+.btn-main{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:8px;transition:opacity .15s}
+.btn-main:active{opacity:.8}
+.btn-done{background:linear-gradient(135deg,var(--green),var(--green2));color:#000}
+.btn-mark{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);
+  color:var(--green);margin-top:6px}
+.btn-mark:active{opacity:.8}
 
-/* ══════════════════════════════
-   PRACTICE SCREEN
-══════════════════════════════ */
-#practice{background:var(--bg);overflow-y:auto;padding-bottom:90px}
-.prac-header{padding:20px 16px 12px}
-.prac-cards{padding:0 16px;display:flex;flex-direction:column;gap:10px}
-.prac-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s}
-.prac-card:active{transform:scale(0.98)}
-.prac-card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.prac-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.pi-1{background:linear-gradient(135deg,#3b82f6,#60a5fa)}
-.pi-2{background:linear-gradient(135deg,var(--green),var(--green2))}
-.pi-3{background:linear-gradient(135deg,var(--gold),var(--gold2))}
-.pi-4{background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.prac-name{font-size:16px;font-weight:700;margin-bottom:3px}
-.prac-sub{font-size:13px;color:var(--muted)}
-.prac-tags{display:flex;gap:6px;flex-wrap:wrap}
-.ptag{font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--muted);font-weight:500}
-.prac-btn{width:100%;padding:11px;background:rgba(124,106,247,0.12);border:1px solid rgba(124,106,247,0.25);border-radius:9px;color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:5px}
+/* ────── PRACTICE ────── */
+.pr-hd{padding:20px 14px 12px}
+.pr-hd-t{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.pr-hd-s{font-size:13px;color:var(--muted)}
+.pr-list{padding:0 14px;display:flex;flex-direction:column;gap:10px}
+.pr-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.pr-top{display:flex;align-items:center;gap:11px;padding:13px 13px 0}
+.pr-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:21px;flex-shrink:0}
+.pi1{background:linear-gradient(135deg,#3b82f6,#60a5fa)}
+.pi2{background:linear-gradient(135deg,var(--green),var(--green2))}
+.pi3{background:linear-gradient(135deg,var(--gold),var(--gold2))}
+.pi4{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.pi5{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.pr-nm{font-size:15px;font-weight:700;margin-bottom:2px}
+.pr-sub{font-size:12px;color:var(--muted)}
+.pr-tags{display:flex;gap:5px;padding:9px 13px 0;flex-wrap:wrap}
+.ptag{font-size:11px;padding:3px 8px;border-radius:999px;
+  background:rgba(255,255,255,.06);color:var(--muted);font-weight:500}
 
-/* ══════════════════════════════
-   PROFILE SCREEN  
-══════════════════════════════ */
-#profile{background:var(--bg);overflow-y:auto;padding-bottom:90px}
-.prof-header{padding:24px 16px 16px;text-align:center}
-.prof-avatar{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px}
-.prof-name{font-size:20px;font-weight:800;margin-bottom:4px}
-.prof-level{font-size:13px;color:var(--accent2);font-weight:600}
-.achiev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 16px 16px}
-.achiev{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
-.achiev.locked{opacity:0.35}
-.achiev-icon{font-size:28px;margin-bottom:6px}
-.achiev-name{font-size:11px;color:var(--muted);line-height:1.3}
-.achiev.unlocked .achiev-name{color:var(--text)}
-.reasons-block{margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
-.reasons-title{font-size:15px;font-weight:700;margin-bottom:12px}
-.reason-item{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-.reason-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-.reason-text{font-size:13px;color:var(--muted);line-height:1.55}
-.reason-text strong{color:var(--text)}
+/* INPUT AREA */
+.pr-input-area{padding:10px 13px 13px}
+.pr-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-size:14px;padding:11px 13px;resize:none;min-height:90px;
+  font-family:inherit;outline:none;transition:border-color .2s;line-height:1.5}
+.pr-input:focus{border-color:rgba(124,106,247,.5)}
+.pr-input::placeholder{color:var(--muted)}
+.pr-send{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:8px;transition:opacity .15s}
+.pr-send:active{opacity:.8}
+.pr-send:disabled{opacity:.4;cursor:default}
+.pr-prompt-btn{width:100%;padding:10px;
+  background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.22);
+  border-radius:10px;color:var(--accent2);font-size:13px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:opacity .15s}
+.pr-prompt-btn:active{opacity:.8}
 
-/* ══════════════════════════════
-   BOTTOM NAV
-══════════════════════════════ */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 max(12px,env(safe-area-inset-bottom));z-index:999}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:2px 0;transition:all .15s;color:var(--muted)}
-.nav-item.on{color:var(--accent2)}
-.nav-ico{font-size:24px;line-height:1}
-.nav-lbl{font-size:10px;font-weight:600;letter-spacing:.02em}
+/* RESPONSE BOX */
+.response-box{margin:10px 13px 13px;background:var(--card2);border:1px solid rgba(124,106,247,.2);
+  border-radius:10px;padding:13px;display:none}
+.response-box.show{display:block}
+.response-hd{font-size:11px;font-weight:600;color:var(--accent2);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:8px}
+.response-txt{font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.resp-loading{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+.dots{display:flex;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);
+  animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 
-/* ══════════════════════════════
-   TOAST
-══════════════════════════════ */
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-60px);background:linear-gradient(135deg,var(--green),var(--green2));color:#000;font-size:14px;font-weight:700;padding:10px 20px;border-radius:999px;z-index:9999;transition:transform .3s ease;white-space:nowrap}
+/* ────── PROFILE ────── */
+.prof-hd{padding:22px 14px 14px;text-align:center}
+.prof-av{width:68px;height:68px;border-radius:20px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 10px}
+.prof-nm{font-size:19px;font-weight:800;margin-bottom:3px}
+.prof-lv{font-size:13px;color:var(--accent2);font-weight:600}
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 14px 14px}
+.ach{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:12px 8px;text-align:center;transition:all .2s}
+.ach.lk{opacity:.3}
+.ach.ul{border-color:rgba(124,106,247,.3);background:rgba(124,106,247,.07)}
+.ach-ico{font-size:26px;margin-bottom:5px}
+.ach-nm{font-size:11px;color:var(--muted);line-height:1.3}
+.ach.ul .ach-nm{color:var(--text)}
+.why-block{margin:0 14px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.why-t{font-size:15px;font-weight:700;margin-bottom:10px}
+.why-item{display:flex;gap:9px;margin-bottom:9px;align-items:flex-start}
+.why-e{font-size:17px;flex-shrink:0;margin-top:1px}
+.why-txt{font-size:13px;color:var(--muted);line-height:1.55}
+.why-txt strong{color:var(--text)}
+
+/* ────── NAV ────── */
+.nav{position:fixed;bottom:0;left:0;right:0;
+  background:rgba(10,10,15,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);display:flex;
+  padding:7px 0 max(10px,env(safe-area-inset-bottom));z-index:999}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:pointer;padding:2px 0;color:var(--muted);transition:color .15s}
+.ni.on{color:var(--accent2)}
+.ni-ico{font-size:23px;line-height:1}
+.ni-lbl{font-size:10px;font-weight:600;letter-spacing:.02em}
+
+/* TOAST */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-60px);
+  background:linear-gradient(135deg,var(--green),var(--green2));color:#000;
+  font-size:13px;font-weight:700;padding:9px 18px;border-radius:999px;
+  z-index:9999;transition:transform .3s;white-space:nowrap;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
-/* CONFETTI PARTICLES */
-.particle{position:fixed;pointer-events:none;border-radius:50%;z-index:9998;animation:fall 1.5s ease-in forwards}
-@keyframes fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+/* PARTICLE */
+.particle{position:fixed;pointer-events:none;border-radius:3px;z-index:9998;
+  animation:fall 1.4s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
 
 <!-- ══ HOME ══ -->
-<div class="screen active" id="home">
-  <div class="home-hero">
+<div class="screen on" id="sc-home">
+  <div class="hero">
     <div class="hero-badge">🎮 English Quest</div>
-    <div class="hero-title">Стань <span>свободным</span><br>в английском</div>
-    <div class="hero-sub">6 месяцев — 180 миссий — реальный результат</div>
+    <div class="hero-h">Стань <span>свободным</span><br>в английском</div>
+    <div class="hero-s">6 месяцев · 20 миссий · реальный результат</div>
   </div>
 
-  <div class="xp-section">
-    <div class="xp-top">
-      <div class="xp-level">
-        <div class="level-badge" id="lvlNum">1</div>
-        <div class="level-info">
-          <div class="level-name" id="lvlName">Новичок</div>
-          <div class="level-sub" id="lvlSub">0 / 100 XP до следующего уровня</div>
-        </div>
+  <div class="xp-block">
+    <div class="xp-row">
+      <div class="xp-lv">
+        <div class="lv-badge" id="h-lv">1</div>
+        <div><div class="lv-name" id="h-lvnm">Новичок</div><div class="lv-sub" id="h-lvsub">0 / 100 XP</div></div>
       </div>
-      <div class="xp-num" id="xpTotal">0 XP</div>
+      <div class="xp-val" id="h-xp">0 XP</div>
     </div>
-    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    <div class="xp-bar"><div class="xp-fill" id="h-xpf" style="width:0%"></div></div>
   </div>
 
-  <div class="stats-row">
-    <div class="stat"><div class="stat-val fire" id="s-streak">0</div><div class="stat-lbl">🔥 Дней подряд</div></div>
-    <div class="stat"><div class="stat-val purple" id="s-missions">0</div><div class="stat-lbl">⚔️ Миссий</div></div>
-    <div class="stat"><div class="stat-val green" id="s-words">0</div><div class="stat-lbl">📚 Слов</div></div>
+  <div class="stats">
+    <div class="stat"><div class="sv or" id="h-str">0</div><div class="sl">🔥 Серия</div></div>
+    <div class="stat"><div class="sv pu" id="h-mis">0</div><div class="sl">⚔️ Миссий</div></div>
+    <div class="stat"><div class="sv gr" id="h-wrd">0</div><div class="sl">📚 Слов</div></div>
   </div>
 
-  <div class="sec-title">Сегодняшняя миссия</div>
-  <div class="today-card" onclick="goMap()">
+  <div class="sec">Сегодняшняя миссия</div>
+  <div class="today" onclick="goNav('map',1)">
     <div class="today-top">
-      <div class="today-icon" id="todayIcon">📖</div>
-      <div>
-        <div class="today-label">Активная миссия</div>
-        <div class="today-title" id="todayTitle">Загрузка...</div>
-      </div>
+      <div class="today-ico" id="h-tico">📖</div>
+      <div><div class="today-lbl">Активная миссия</div><div class="today-tit" id="h-ttit">Загрузка...</div></div>
     </div>
-    <div class="today-tasks" id="todayTasks"></div>
-    <button class="today-btn" onclick="goMap()">⚔️ Продолжить миссию</button>
+    <div class="today-steps" id="h-tsteps"></div>
+    <button class="today-btn">⚔️ Открыть миссию</button>
   </div>
 
-  <div class="sec-title">Карта прогресса</div>
-  <div class="map-preview" id="mapPreview"></div>
+  <div class="sec">Карта прогресса</div>
+  <div class="mpp" id="h-map"></div>
 
-  <div class="sec-title">Важно знать</div>
-  <div class="motive" style="margin-bottom:8px">
-    <div class="motive-q">💡</div>
-    <div class="motive-text"><strong>Почему большинство бросает?</strong> Берут слишком много сразу. Здесь — 1 миссия в день. Этого достаточно чтобы через 6 месяцев говорить свободно.</div>
+  <div class="sec">Помни об этом</div>
+  <div class="tip">
+    <div class="tip-e">💡</div>
+    <div><div class="tip-t">Почему бросают?</div>
+    <div class="tip-s">Берут слишком много. Здесь — 1 миссия в день, 30 минут. Этого достаточно чтобы через 6 месяцев говорить свободно.</div></div>
   </div>
-  <div class="motive">
-    <div class="motive-q">🎯</div>
-    <div class="motive-text"><strong>Пропустил день?</strong> Не страшно. Просто открой следующий день. Цель — 80% дней, не 100%. Перфекционизм убивает язык.</div>
+  <div class="tip" style="margin-bottom:14px">
+    <div class="tip-e">🎯</div>
+    <div><div class="tip-t">Пропустил день?</div>
+    <div class="tip-s">Просто продолжай. 80% дней из 100 дают результат. Перфекционизм убивает язык быстрее чем лень.</div></div>
   </div>
 </div>
 
 <!-- ══ MAP ══ -->
-<div class="screen" id="map">
-  <div class="map-header">
-    <div class="map-header-icon">🗺</div>
-    <div>
-      <div class="map-header-title">Карта миссий</div>
-      <div class="map-header-sub">Проходи по одной миссии в день</div>
-    </div>
+<div class="screen" id="sc-map">
+  <div class="map-hd">
+    <div class="map-hd-ico">🗺</div>
+    <div><div class="map-hd-t">Карта миссий</div><div class="map-hd-s">По одной миссии в день</div></div>
   </div>
-  <div id="mapContent"></div>
+  <div id="map-content" style="padding:0 14px 14px"></div>
 </div>
 
 <!-- ══ PRACTICE ══ -->
-<div class="screen" id="practice">
-  <div class="prac-header">
-    <div class="map-header-title" style="font-size:20px;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px">⚡ Практика</div>
-    <div style="font-size:13px;color:var(--muted)">Отправь задание — получи проверку от учителя</div>
+<div class="screen" id="sc-practice">
+  <div class="pr-hd">
+    <div class="pr-hd-t">⚡ Практика</div>
+    <div class="pr-hd-s">Выбери тип → напиши задание → получи ответ учителя прямо здесь</div>
   </div>
-  <div class="prac-cards">
-    <div class="prac-card">
-      <div class="prac-card-top">
-        <div class="prac-icon pi-1">✍️</div>
-        <div><div class="prac-name">Написать по-английски</div><div class="prac-sub">Учитель проверит и исправит ошибки</div></div>
+  <div class="pr-list">
+
+    <!-- Writing -->
+    <div class="pr-card">
+      <div class="pr-top"><div class="pr-ico pi1">✍️</div>
+        <div><div class="pr-nm">Написать по-английски</div><div class="pr-sub">Проверка грамматики и словаря</div></div></div>
+      <div class="pr-tags"><span class="ptag">Грамматика</span><span class="ptag">Словарь</span></div>
+      <div class="pr-input-area">
+        <textarea class="pr-input" id="inp-write" placeholder="Напиши здесь по-английски что угодно — предложение, рассказ о себе, перевод фразы..."></textarea>
+        <button class="pr-send" onclick="practiceSubmit('write')">✍️ Отправить на проверку</button>
+        <div class="response-box" id="resp-write">
+          <div class="response-hd">👨‍🏫 Ответ учителя</div>
+          <div class="response-txt" id="rtxt-write"></div>
+        </div>
       </div>
-      <div class="prac-tags"><span class="ptag">Грамматика</span><span class="ptag">Словарь</span><span class="ptag">Мгновенно</span></div>
-      <button class="prac-btn" onclick="sendHW('Я хочу попрактиковаться в письме на английском. Задай мне тему для написания 3-5 предложений, подходящую для моего уровня (начинающий). После того как я напишу — проверь ошибки и объясни каждую по-русски.')">✍️ Начать практику письма</button>
     </div>
 
-    <div class="prac-card">
-      <div class="prac-card-top">
-        <div class="prac-icon pi-2">🎤</div>
-        <div><div class="prac-name">Практика говорения</div><div class="prac-sub">Отправь голосовое в чат бота</div></div>
+    <!-- Speaking -->
+    <div class="pr-card">
+      <div class="pr-top"><div class="pr-ico pi2">🎤</div>
+        <div><div class="pr-nm">Практика говорения</div><div class="pr-sub">Shadowing фразы + отправь голосовое боту</div></div></div>
+      <div class="pr-tags"><span class="ptag">Произношение</span><span class="ptag">Shadowing</span></div>
+      <div class="pr-input-area">
+        <button class="pr-prompt-btn" onclick="practicePrompt('speak')">🎤 Получить фразы для shadowing</button>
+        <div class="response-box" id="resp-speak">
+          <div class="response-hd">👨‍🏫 Фразы для практики</div>
+          <div class="response-txt" id="rtxt-speak"></div>
+        </div>
+        <div style="margin-top:10px;padding:10px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:9px;font-size:12px;color:var(--muted);line-height:1.6">
+          💡 После получения фраз — запиши голосовое в чат бота, произнеси эти фразы. Бот попросит написать текст и проверит.
+        </div>
       </div>
-      <div class="prac-tags"><span class="ptag">Произношение</span><span class="ptag">Fluency</span><span class="ptag">Голос</span></div>
-      <button class="prac-btn" onclick="sendHW('Дай мне 3 простые фразы для shadowing — повторения вслух. После того как я запишу голосовое в чат бота с текстом этих фраз — проверь и дай совет по произношению.')">🎤 Получить фразы для голосового</button>
     </div>
 
-    <div class="prac-card">
-      <div class="prac-card-top">
-        <div class="prac-icon pi-3">💬</div>
-        <div><div class="prac-name">Диалог с учителем</div><div class="prac-sub">Симуляция реального разговора</div></div>
+    <!-- Dialog -->
+    <div class="pr-card">
+      <div class="pr-top"><div class="pr-ico pi3">💬</div>
+        <div><div class="pr-nm">Диалог с учителем</div><div class="pr-sub">Реальная разговорная ситуация</div></div></div>
+      <div class="pr-tags"><span class="ptag">Разговор</span><span class="ptag">Ситуации</span><span class="ptag">Реальная жизнь</span></div>
+      <div class="pr-input-area">
+        <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">Выбери ситуацию:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="dialog-btns">
+          <button class="ptag" style="cursor:pointer;padding:6px 12px;font-size:12px" onclick="startDialog('hotel')">🏨 Отель</button>
+          <button class="ptag" style="cursor:pointer;padding:6px 12px;font-size:12px" onclick="startDialog('shop')">🛍 Магазин</button>
+          <button class="ptag" style="cursor:pointer;padding:6px 12px;font-size:12px" onclick="startDialog('airport')">✈️ Аэропорт</button>
+          <button class="ptag" style="cursor:pointer;padding:6px 12px;font-size:12px" onclick="startDialog('cafe')">☕ Кафе</button>
+          <button class="ptag" style="cursor:pointer;padding:6px 12px;font-size:12px" onclick="startDialog('street')">🗺 Дорога</button>
+          <button class="ptag" style="cursor:pointer;padding:6px 12px;font-size:12px" onclick="startDialog('meet')">👋 Знакомство</button>
+        </div>
+        <div class="response-box" id="resp-dialog-start">
+          <div class="response-hd">👨‍🏫 Начало диалога</div>
+          <div class="response-txt" id="rtxt-dialog-start"></div>
+        </div>
+        <textarea class="pr-input" id="inp-dialog" placeholder="Твой ответ по-английски..." style="margin-top:8px;min-height:70px;display:none"></textarea>
+        <button class="pr-send" id="btn-dialog-send" style="display:none" onclick="dialogReply()">💬 Ответить</button>
+        <div class="response-box" id="resp-dialog-reply">
+          <div class="response-hd">👨‍🏫 Учитель</div>
+          <div class="response-txt" id="rtxt-dialog-reply"></div>
+        </div>
       </div>
-      <div class="prac-tags"><span class="ptag">Разговор</span><span class="ptag">Ситуации</span><span class="ptag">Реальная жизнь</span></div>
-      <button class="prac-btn" onclick="sendHW('Начни со мной ролевой диалог на английском. Сыграй роль: сотрудника отеля, а я — турист который заселяется. Говори медленно, исправляй мои ошибки после каждой моей реплики с объяснением по-русски.')">💬 Начать диалог</button>
     </div>
 
-    <div class="prac-card">
-      <div class="prac-card-top">
-        <div class="prac-icon pi-4">📝</div>
-        <div><div class="prac-name">Сдать домашнее задание</div><div class="prac-sub">Проверка конкретного ДЗ из миссии</div></div>
+    <!-- Test -->
+    <div class="pr-card">
+      <div class="pr-top"><div class="pr-ico pi5">🧠</div>
+        <div><div class="pr-nm">Быстрый тест</div><div class="pr-sub">Проверь словарный запас</div></div></div>
+      <div class="pr-tags"><span class="ptag">Слова</span><span class="ptag">Фразы</span><span class="ptag">5 минут</span></div>
+      <div class="pr-input-area">
+        <div class="response-box" id="resp-test-q" style="margin-bottom:8px">
+          <div class="response-hd">❓ Вопрос</div>
+          <div class="response-txt" id="rtxt-test-q"></div>
+        </div>
+        <button class="pr-prompt-btn" id="btn-test-start" onclick="startTest()">🧠 Начать тест (10 вопросов)</button>
+        <textarea class="pr-input" id="inp-test" placeholder="Твой ответ..." style="margin-top:8px;min-height:60px;display:none"></textarea>
+        <button class="pr-send" id="btn-test-send" style="display:none" onclick="testAnswer()">✅ Ответить</button>
+        <div class="response-box" id="resp-test-a">
+          <div class="response-hd">👨‍🏫 Результат</div>
+          <div class="response-txt" id="rtxt-test-a"></div>
+        </div>
       </div>
-      <div class="prac-tags"><span class="ptag">ДЗ</span><span class="ptag">Миссия</span><span class="ptag">Прогресс</span></div>
-      <button class="prac-btn" onclick="sendHW('Я хочу сдать домашнее задание. Спроси меня какая сейчас неделя и какая тема — и проверь моё задание по этой теме.')">📝 Сдать ДЗ</button>
     </div>
 
-    <div class="prac-card">
-      <div class="prac-card-top">
-        <div class="prac-icon pi-1" style="background:linear-gradient(135deg,#ec4899,#f472b6)">🧠</div>
-        <div><div class="prac-name">Быстрый тест</div><div class="prac-sub">Проверь что запомнил</div></div>
+    <!-- HW -->
+    <div class="pr-card" style="margin-bottom:14px">
+      <div class="pr-top"><div class="pr-ico pi4">📝</div>
+        <div><div class="pr-nm">Сдать домашнее задание</div><div class="pr-sub">Проверка ДЗ из конкретной миссии</div></div></div>
+      <div class="pr-tags"><span class="ptag">ДЗ</span><span class="ptag">Миссия</span></div>
+      <div class="pr-input-area">
+        <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">Напиши номер миссии и своё выполненное задание:</div>
+        <textarea class="pr-input" id="inp-hw" placeholder="Например: Миссия 3. Вот мои 10 фраз выживания: Excuse me, Could you repeat that..."></textarea>
+        <button class="pr-send" onclick="practiceSubmit('hw')">📤 Сдать ДЗ учителю</button>
+        <div class="response-box" id="resp-hw">
+          <div class="response-hd">👨‍🏫 Проверка ДЗ</div>
+          <div class="response-txt" id="rtxt-hw"></div>
+        </div>
       </div>
-      <div class="prac-tags"><span class="ptag">Слова</span><span class="ptag">Фразы</span><span class="ptag">5 минут</span></div>
-      <button class="prac-btn" onclick="sendHW('Дай мне быстрый тест на 10 вопросов: перевод слов и фраз с русского на английский. Уровень — начинающий (A1-A2). Задавай по одному вопросу, жди ответа, затем исправляй и давай следующий.')">🧠 Начать тест</button>
     </div>
+
   </div>
 </div>
 
 <!-- ══ PROFILE ══ -->
-<div class="screen" id="profile">
-  <div class="prof-header">
-    <div class="prof-avatar">🧑‍💻</div>
-    <div class="prof-name">Твой прогресс</div>
-    <div class="prof-level" id="profLevel">Уровень 1 — Новичок</div>
+<div class="screen" id="sc-profile">
+  <div class="prof-hd">
+    <div class="prof-av">🧑‍💻</div>
+    <div class="prof-nm">Мой прогресс</div>
+    <div class="prof-lv" id="p-lv">Уровень 1 — Новичок</div>
+  </div>
+  <div class="stats" style="margin-top:0">
+    <div class="stat"><div class="sv or" id="p-str">0</div><div class="sl">🔥 Серия</div></div>
+    <div class="stat"><div class="sv pu" id="p-mis">0</div><div class="sl">⚔️ Миссий</div></div>
+    <div class="stat"><div class="sv gr" id="p-wrd">0</div><div class="sl">📚 Слов</div></div>
   </div>
 
-  <div class="stats-row">
-    <div class="stat"><div class="stat-val fire" id="p-streak">0</div><div class="stat-lbl">🔥 Серия</div></div>
-    <div class="stat"><div class="stat-val purple" id="p-missions">0</div><div class="stat-lbl">⚔️ Миссий</div></div>
-    <div class="stat"><div class="stat-val green" id="p-words">0</div><div class="stat-lbl">📚 Слов</div></div>
+  <div class="sec" style="margin-top:4px">Достижения</div>
+  <div class="ach-grid">
+    <div class="ach ul" id="a0"><div class="ach-ico">🚀</div><div class="ach-nm">Первый старт</div></div>
+    <div class="ach lk" id="a1"><div class="ach-ico">🔥</div><div class="ach-nm">7 дней подряд</div></div>
+    <div class="ach lk" id="a2"><div class="ach-ico">⚔️</div><div class="ach-nm">10 миссий</div></div>
+    <div class="ach lk" id="a3"><div class="ach-ico">📚</div><div class="ach-nm">100 слов</div></div>
+    <div class="ach lk" id="a4"><div class="ach-ico">💬</div><div class="ach-nm">Первый диалог</div></div>
+    <div class="ach lk" id="a5"><div class="ach-ico">🏆</div><div class="ach-nm">Месяц 1 пройден</div></div>
   </div>
 
-  <div class="sec-title" style="margin-top:4px">Достижения</div>
-  <div class="achiev-grid">
-    <div class="achiev" id="ach-0"><div class="achiev-icon">🚀</div><div class="achiev-name">Первый старт</div></div>
-    <div class="achiev locked" id="ach-1"><div class="achiev-icon">🔥</div><div class="achiev-name">7 дней подряд</div></div>
-    <div class="achiev locked" id="ach-2"><div class="achiev-icon">⚔️</div><div class="achiev-name">10 миссий</div></div>
-    <div class="achiev locked" id="ach-3"><div class="achiev-icon">📚</div><div class="achiev-name">100 слов</div></div>
-    <div class="achiev locked" id="ach-4"><div class="achiev-icon">💬</div><div class="achiev-name">Первый диалог</div></div>
-    <div class="achiev locked" id="ach-5"><div class="achiev-icon">🏆</div><div class="achiev-name">Месяц 1</div></div>
-  </div>
-
-  <div class="sec-title">Почему люди бросают — и как не стать одним из них</div>
-  <div class="reasons-block">
-    <div class="reason-item"><div class="reason-icon">😤</div><div class="reason-text"><strong>Берут слишком много.</strong> Час занятий + грамматика + приложение + видео. Через неделю — всё. Здесь: одна миссия, 30 минут.</div></div>
-    <div class="reason-item"><div class="reason-icon">😰</div><div class="reason-text"><strong>Боятся ошибок.</strong> Молчат вместо того чтобы говорить. Ошибки — это данные, не провал. Говори неправильно.</div></div>
-    <div class="reason-item"><div class="reason-icon">📚</div><div class="reason-text"><strong>Учат грамматику, не язык.</strong> Правила без практики — мёртвое знание. Учи фразы целиком — мозг сам поймёт структуру.</div></div>
-    <div class="reason-item"><div class="reason-icon">🎯</div><div class="reason-text"><strong>Нет конкретной цели.</strong> «Хочу знать английский» — слабо. Твоя цель: <strong>спокойно говорить с иностранцем 15 минут.</strong> Это реально за 6 месяцев.</div></div>
-    <div class="reason-item"><div class="reason-icon">📅</div><div class="reason-text"><strong>Пропустил — и бросил.</strong> Пропустить день — нормально. Бросить после пропуска — ошибка. <strong>Просто продолжай.</strong></div></div>
+  <div class="sec">Почему люди бросают учить язык</div>
+  <div class="why-block" style="margin-bottom:14px">
+    <div class="why-item"><div class="why-e">😤</div><div class="why-txt"><strong>Берут слишком много.</strong> Час занятий + грамматика + 3 приложения. Через неделю — всё. Здесь: 1 миссия, 30 минут.</div></div>
+    <div class="why-item"><div class="why-e">😰</div><div class="why-txt"><strong>Боятся ошибок.</strong> Молчат вместо того чтобы говорить. Каждая ошибка — это данные. Говори неправильно.</div></div>
+    <div class="why-item"><div class="why-e">📚</div><div class="why-txt"><strong>Учат грамматику, не язык.</strong> Учи фразы целиком — мозг сам поймёт структуру.</div></div>
+    <div class="why-item"><div class="why-e">📅</div><div class="why-txt"><strong>Пропустил — и бросил.</strong> Пропустить день нормально. Бросить после пропуска — нет. <strong>Просто продолжай.</strong></div></div>
   </div>
 </div>
 
-<!-- ══ BOTTOM NAV ══ -->
-<div class="bottom-nav">
-  <div class="nav-item on" onclick="goScreen('home',0)"><div class="nav-ico">🏠</div><div class="nav-lbl">Главная</div></div>
-  <div class="nav-item" onclick="goScreen('map',1)"><div class="nav-ico">🗺</div><div class="nav-lbl">Миссии</div></div>
-  <div class="nav-item" onclick="goScreen('practice',2)"><div class="nav-ico">⚡</div><div class="nav-lbl">Практика</div></div>
-  <div class="nav-item" onclick="goScreen('profile',3)"><div class="nav-ico">👤</div><div class="nav-lbl">Профиль</div></div>
+<!-- NAV -->
+<div class="nav">
+  <div class="ni on" onclick="goNav('home',0)"><div class="ni-ico">🏠</div><div class="ni-lbl">Главная</div></div>
+  <div class="ni" onclick="goNav('map',1)"><div class="ni-ico">🗺</div><div class="ni-lbl">Миссии</div></div>
+  <div class="ni" onclick="goNav('practice',2)"><div class="ni-ico">⚡</div><div class="ni-lbl">Практика</div></div>
+  <div class="ni" onclick="goNav('profile',3)"><div class="ni-ico">👤</div><div class="ni-lbl">Профиль</div></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+// ── TELEGRAM ──
 const tg = window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand();}
+if(tg){tg.ready();tg.expand();tg.setHeaderColor('#0a0a0f');tg.setBackgroundColor('#0a0a0f');}
 
 // ── STATE ──
-const DEF = {xp:0,level:1,streak:0,missions:0,words:0,lastDate:null,done:{},achiev:[true,false,false,false,false,false]};
-let S = JSON.parse(localStorage.getItem('eq_state')||'null') || {...DEF};
+const DEF={xp:0,level:1,streak:0,missions:0,words:0,lastDate:null,done:{},dialogCtx:[]};
+let S=JSON.parse(localStorage.getItem('eq2')||'null')||{...DEF};
+function save(){localStorage.setItem('eq2',JSON.stringify(S));}
 
-const LEVELS = [
-  {name:'Новичок',xp:0},{name:'Турист',xp:100},{name:'Путешественник',xp:250},
-  {name:'Собеседник',xp:500},{name:'Уверенный',xp:900},{name:'Свободный',xp:1500}
+// ── LEVELS ──
+const LVS=[
+  {n:'Новичок',x:0},{n:'Турист',x:100},{n:'Путешественник',x:250},
+  {n:'Собеседник',x:500},{n:'Уверенный',x:900},{n:'Свободный',x:1500}
 ];
+function getLv(xp){let l=0;LVS.forEach((v,i)=>{if(xp>=v.x)l=i;});return l;}
+function getLvPct(xp){
+  const l=getLv(xp),c=LVS[l].x,nx=LVS[l+1]?LVS[l+1].x:c+500;
+  return Math.min(100,Math.round(((xp-c)/(nx-c))*100));
+}
 
-// ── MISSIONS DATA ──
-const MISSIONS = [
-  // PHASE 1 — Month 1-2
-  {id:1,phase:1,week:1,day:'Пн',title:'Установка Anki',icon:'🃏',xp:50,time:'30 мин',
+// ── MISSIONS ──
+const MS=[
+  {id:1,ph:1,icon:'🃏',title:'Установка Anki',xp:50,time:'30 мин',day:'День 1',
    steps:[
-     {t:'Скачай Anki',d:'apps.ankiweb.net — бесплатно. Android: AnkiDroid. iOS: веб-версия ankiweb.net'},
-     {t:'Скачай колоду',d:'В Anki → «Получить общие колоды» → "Top 3000 English Words". Это 90% разговорной речи.'},
-     {t:'Первые 20 карточек — 15 мин',d:'Слово появилось → попробуй угадать → «Показать ответ» → оцени честно. Anki запомнит когда повторить.'},
-     {t:'BBC Learning English — 10 мин',d:'YouTube: @bbclearningenglish → плейлист "English in a Minute". 3 видео. Просто слушай.'},
+     {t:'Скачай Anki',d:'apps.ankiweb.net — бесплатно. Android: AnkiDroid. iOS: веб-версия ankiweb.net. Зарегистрируйся для синхронизации.'},
+     {t:'Скачай колоду "Top 3000 English Words"',d:'В Anki → Получить общие колоды → ищи Top 3000 English Words. Это 90% разговорной речи.'},
+     {t:'Первые 20 карточек — 15 мин',d:'Слово → попробуй угадать → Показать ответ → оцени честно. Anki сам решит когда повторить.'},
+     {t:'BBC Learning English — 10 мин',d:'YouTube @bbclearningenglish → плейлист English in a Minute. 3 видео. Просто слушай с субтитрами.'},
    ],
-   hw:['Anki установлена и колода скачана','Прошёл первые 20 карточек','Посмотрел 3 видео BBC','Написал боту 3 слова которые запомнил'],
-   hwPrompt:'Проверь ДЗ — Миссия 1. Я установил Anki и прошёл первые 20 карточек. Дай мне мини-тест на 5 базовых слов и объясни как работает интервальное повторение.'},
+   hw:['Anki установлена и колода скачана','Прошёл первые 20 карточек','Посмотрел 3 BBC видео'],
+   hwp:'Проверь ДЗ — Миссия 1 (Anki). Я установил Anki и прошёл 20 карточек. Дай мне мини-тест: 5 базовых слов с русского на английский. Потом объясни как работает интервальное повторение простыми словами.'},
 
-  {id:2,phase:1,week:1,day:'Вт',title:'Звуки английского',icon:'🔊',xp:50,time:'35 мин',
+  {id:2,ph:1,icon:'🔊',title:'Звуки английского',xp:50,time:'35 мин',day:'День 2',
    steps:[
-     {t:'Anki — 10 мин (каждый день!)',d:'Программа сама покажет что повторить. Никогда не пропускай.'},
-     {t:'4 звука которые мы произносим неправильно',d:'"th" — язык между зубами (не з, не с). "w" — губы трубочкой (не в). "r" — язык не касается нёба. "v" — нижняя губа к верхним зубам. YouTube: Rachel\'s English — sounds'},
-     {t:'Shadowing — 10 мин',d:'BBC видео + субтитры → пауза после фразы → повторяй вслух точь-в-точь. Чувствуешь себя глупо? Значит правильно делаешь.'},
+     {t:'Anki — 10 мин (каждый день!)',d:'Программа сама покажет что повторить. Никогда не пропускай — это рушит всю систему.'},
+     {t:'4 звука которые мы произносим неправильно',d:'"th" — язык между зубами (не з, не с). "w" — губы трубочкой (не в). "r" — язык не касается нёба. "v" — нижняя губа к верхним зубам. YouTube: Rachel\'s English sounds.'},
+     {t:'Shadowing — 10 мин',d:'Включи BBC видео + субтитры → ставь паузу после каждой фразы → повторяй вслух точь-в-точь. Звучит глупо? Значит делаешь правильно.'},
    ],
-   hw:['Anki повторение','Посмотрел видео про звуки','Делал shadowing 5+ фраз вслух','Отправил голосовое с Thank you very much'],
-   hwPrompt:'Проверь ДЗ — Миссия 2, звуки. Объясни мне по-русски как правильно произносить: th, w, r, v — куда ставить язык и губы. Потом дай 5 слов где русские часто ошибаются.'},
+   hw:['Anki повторение','Посмотрел видео про звуки','Делал shadowing минимум 5 фраз вслух'],
+   hwp:'Проверь ДЗ — Миссия 2 (Звуки). Объясни мне по-русски как правильно произносить: th, w, r, v. Потом дай 5 слов где русские чаще всего ошибаются с произношением, с объяснением как правильно.'},
 
-  {id:3,phase:1,week:1,day:'Ср',title:'10 фраз выживания',icon:'🆘',xp:60,time:'35 мин',
+  {id:3,ph:1,icon:'🆘',title:'10 фраз выживания',xp:60,time:'35 мин',day:'День 3',
    steps:[
      {t:'Anki — 10 мин',d:'Повторение. Замечаешь что часть слов уже легче? Это работает.'},
-     {t:'10 фраз — выучи наизусть, повтори каждую 5 раз',d:'Excuse me / Could you repeat that? / I don\'t understand / How much is it? / Where is the bathroom? / Can you help me? / I\'m sorry / Thank you / Yes / No / Maybe / Do you speak Russian?'},
-     {t:'Shadowing диалога — 10 мин',d:'YouTube: "basic English conversation" → shadowing обоих персонажей.'},
+     {t:'Выучи наизусть — повтори каждую 5 раз вслух',d:'Excuse me / Could you repeat that? / I don\'t understand / How much is it? / Where is the bathroom? / Can you help me? / I\'m sorry / Thank you / Yes / No / Do you speak Russian?'},
+     {t:'Shadowing диалога — 10 мин',d:'YouTube: basic English conversation → shadowing обоих персонажей.'},
    ],
-   hw:['Anki повторение','Выучил все 10 фраз выживания','Написал боту все 10 фраз без подсказки'],
-   hwPrompt:'Тест — Миссия 3: 10 фраз выживания. Напиши мне их значение по-русски в случайном порядке — я отвечу по-английски. По одной фразе.'},
+   hw:['Anki повторение','Выучил все 10 фраз выживания','Написал все 10 фраз без подсказки'],
+   hwp:'Тест — Миссия 3 (10 фраз). Напиши мне значение каждой фразы по-русски в случайном порядке — я отвечу по-английски. По одной фразе, жди моего ответа.'},
 
-  {id:4,phase:1,week:1,day:'Чт',title:'Числа и время',icon:'🕐',xp:50,time:'35 мин',
+  {id:4,ph:1,icon:'🕐',title:'Числа и время',xp:50,time:'35 мин',day:'День 4',
    steps:[
      {t:'Anki — 10 мин',d:'Добавь числа 1–20 если их нет в колоде.'},
-     {t:'Числа 1–100 — 10 мин',d:'YouTube: "Numbers in English 1 to 100". Ловушка: thirteen vs thirty — разница в ударении! Слушай и повторяй.'},
-     {t:'Время — 10 мин',d:'"What time is it?" → "It\'s three o\'clock" / "half past two" / "quarter to five". Смотри на часы — называй время вслух.'},
+     {t:'Числа 1–100',d:'YouTube: Numbers in English 1 to 100. Ловушка: thirteen vs thirty — разница в ударении! Повторяй вслух.'},
+     {t:'Время по-английски',d:'"What time is it?" → "It\'s three o\'clock" / "half past two" / "quarter to five". Смотри на часы — называй время вслух по-английски.'},
    ],
-   hw:['Числа 1–20 без запинки','Написал боту который час сейчас по-английски','Прошёл тест на числа'],
-   hwPrompt:'Тест — Миссия 4: числа и время. Назови мне 10 чисел цифрами — я напишу по-английски. Потом 5 примеров времени.'},
+   hw:['Числа 1–20 без запинки','Написал боту который час сейчас'],
+   hwp:'Тест — Миссия 4 (Числа и время). Назови мне 10 чисел цифрами — я напишу по-английски. Потом 5 вопросов про время: покажи цифрами, я скажу по-английски.'},
 
-  {id:5,phase:1,week:1,day:'Пт',title:'Визитка о себе',icon:'👋',xp:70,time:'40 мин',
+  {id:5,ph:1,icon:'👋',title:'Визитка о себе',xp:70,time:'40 мин',day:'День 5',
    steps:[
-     {t:'Anki — 10 мин',d:'60+ слов за неделю — отличный старт.'},
-     {t:'Составь визитку — выучи наизусть, 20 мин',d:'"Hi, my name is [имя]. I\'m from Russia. I\'m [возраст] years old. I work as [профессия]. I like [хобби]. Nice to meet you!" Повтори 10 раз вслух как актёр.'},
-     {t:'Shadowing диалога знакомства — 10 мин',d:'YouTube: "ESL conversation — introducing yourself"'},
+     {t:'Anki — 10 мин',d:'Уже 60+ слов за неделю — отличный старт.'},
+     {t:'Составь визитку — выучи наизусть',d:'"Hi, my name is [имя]. I\'m from Russia. I\'m [возраст] years old. I work as [профессия]. I like [хобби]. Nice to meet you!" Повтори 10 раз как актёр — это твоя первая реплика с любым иностранцем.'},
+     {t:'Shadowing диалога знакомства',d:'YouTube: ESL conversation introducing yourself. Shadowing обоих персонажей.'},
    ],
-   hw:['Выучил визитку из 5–6 предложений','Отправил визитку боту на проверку','Ответил на 3 вопроса о себе по-английски'],
-   hwPrompt:'Проверь ДЗ — Миссия 5. Вот моя визитка на английском — исправь ошибки, объясни каждую по-русски. После этого сыграй иностранца и задай мне 3 вопроса о себе.'},
+   hw:['Выучил визитку из 5–6 предложений','Отправил визитку учителю на проверку'],
+   hwp:'Проверь ДЗ — Миссия 5 (Визитка). Вот моя визитка на английском — исправь ошибки, объясни каждую по-русски. Потом сыграй иностранца и задай мне 3 вопроса о себе по-английски.'},
 
-  {id:6,phase:1,week:1,day:'Сб',title:'Итог недели 1',icon:'🏅',xp:100,time:'45 мин',
+  {id:6,ph:1,icon:'🏅',title:'Итог недели 1',xp:100,time:'45 мин',day:'День 6–7',
    steps:[
-     {t:'Anki — 15 мин',d:'В субботу — больше карточек. Все накопившиеся повторения + 10 новых.'},
-     {t:'BBC без субтитров — 20 мин',d:'Сначала с субтитрами. Потом то же видео — без. Считай процент понимания.'},
-     {t:'Монолог о себе — 10 мин',d:'Ходи по комнате и говори о себе по-английски. Всё что знаешь. Не останавливайся.'},
+     {t:'Anki — 15 мин',d:'Суббота — больше карточек. Все накопившиеся повторения + 10 новых.'},
+     {t:'BBC без субтитров — 20 мин',d:'Сначала с субтитрами. Потом то же видео без субтитров. Сколько % понял?'},
+     {t:'Монолог о себе — 10 мин',d:'Ходи по комнате и говори по-английски. Всё что знаешь. Не останавливайся даже если ошибаешься.'},
    ],
-   hw:['Anki 5 дней подряд','10 фраз выживания наизусть','Написал 5 предложений о неделе','Прошёл итоговый тест у бота'],
-   hwPrompt:'ИТОГ НЕДЕЛИ 1! Финальный тест: 1) 5 фраз выживания с русского на английский 2) числа — 5 примеров 3) время — 3 примера 4) моя визитка наизусть. По одному пункту.'},
+   hw:['Anki 5 дней подряд','10 фраз выживания помню наизусть','Прошёл итоговый тест'],
+   hwp:'ИТОГ НЕДЕЛИ 1! Проведи финальный тест по порядку: 1) Задай 5 фраз выживания с русского — я отвечу по-английски 2) Числа: 5 примеров 3) Время: 3 примера 4) Моя визитка наизусть. По одному пункту, жди ответа.'},
 
-  {id:7,phase:1,week:2,day:'Нед 2',title:'Еда и ресторан',icon:'🍽',xp:60,time:'35 мин',
+  {id:7,ph:1,icon:'🍽',title:'Еда и ресторан',xp:60,time:'35 мин',day:'Нед 2',
    steps:[
-     {t:'Anki — 10 мин',d:'Новые слова: water, bread, coffee, tea, chicken, rice, soup, dessert.'},
-     {t:'Фразы в ресторане — 15 мин',d:'"I\'d like..." / "Can I have the menu?" / "What do you recommend?" / "The bill please" / "I\'m allergic to..."'},
-     {t:'Shadowing диалога — 10 мин',d:'YouTube: "ordering food in English" — shadowing обоих ролей.'},
+     {t:'Anki — 10 мин + слова еды',d:'Добавь: water, bread, coffee, tea, chicken, rice, soup, dessert, menu, bill.'},
+     {t:'Фразы в ресторане',d:'"I\'d like..." / "Can I have the menu?" / "What do you recommend?" / "The bill please" / "I\'m allergic to..."'},
+     {t:'Shadowing диалога',d:'YouTube: ordering food in English → shadowing обоих ролей.'},
    ],
-   hw:['Anki повторение','Выучил фразы заказа','Написал боту диалог в ресторане (4+ реплики)'],
-   hwPrompt:'Тест — Миссия 7: ресторан. Сыграй официанта — приветствуй меня и спроси что хочу заказать. Я отвечаю по-английски. После диалога исправь ошибки.'},
+   hw:['Выучил фразы заказа','Написал диалог в ресторане (4+ реплики)'],
+   hwp:'Тест — Миссия 7 (Ресторан). Сыграй официанта — приветствуй меня и спроси что хочу заказать. Я отвечаю по-английски. После 4 реплик — исправь мои ошибки.'},
 
-  {id:8,phase:1,week:2,day:'Нед 2',title:'Транспорт и дорога',icon:'🚌',xp:60,time:'35 мин',
+  {id:8,ph:1,icon:'🚌',title:'Транспорт и дорога',xp:60,time:'35 мин',day:'Нед 2',
    steps:[
-     {t:'Anki — 10 мин',d:'Слова: bus, train, taxi, airport, station, left, right, straight, near, far.'},
-     {t:'Фразы навигации — 15 мин',d:'"How do I get to...?" / "Turn left / right" / "Go straight" / "How far is it?" / "One ticket to... please"'},
-     {t:'Shadowing — 10 мин',d:'YouTube: "asking for directions in English"'},
+     {t:'Anki — 10 мин + слова транспорта',d:'bus, train, taxi, airport, station, left, right, straight, near, far, map.'},
+     {t:'Фразы навигации',d:'"How do I get to...?" / "Turn left / right" / "Go straight" / "How far is it?" / "One ticket to... please"'},
+     {t:'Shadowing',d:'YouTube: asking for directions in English.'},
    ],
-   hw:['Выучил фразы транспорта','Описал маршрут от дома до магазина по-английски'],
-   hwPrompt:'Тест — Миссия 8: транспорт. Сыграй туриста который заблудился — спроси меня дорогу по-английски. Я объясняю. Потом 5 фраз транспорта с русского на английский.'},
+   hw:['Выучил фразы транспорта','Описал маршрут от дома до магазина'],
+   hwp:'Тест — Миссия 8 (Транспорт). Сыграй туриста который заблудился — спроси меня дорогу по-английски. Я объясняю. Потом 5 фраз с русского на английский по теме транспорт.'},
 
-  {id:9,phase:1,week:2,day:'Нед 2',title:'Покупки и погода',icon:'🛍',xp:60,time:'35 мин',
+  {id:9,ph:1,icon:'🕐',title:'Времена глаголов',xp:70,time:'40 мин',day:'Нед 3',
    steps:[
-     {t:'Покупки — 15 мин',d:'"How much is this?" / "Do you have this in size...?" / "I\'ll take it" / "Do you accept cards?"'},
-     {t:'Погода — 10 мин',d:'sunny, cloudy, rainy, cold, hot. "What\'s the weather like?" "It\'s raining." Смотри прогноз на weather.com по-английски.'},
-     {t:'HelloTalk — первый контакт',d:'Скачай бесплатно. Найди партнёра и напиши: "Hi! I\'m from Russia, learning English. Practice together?"'},
+     {t:'Present Simple — что я делаю',d:'I work / He works. К he/she/it добавляй -s. "Every day I wake up, drink coffee, go to work." Составь 5 предложений о своём дне.'},
+     {t:'Past Simple — что я делал',d:'walk→walked, cook→cooked. Неправильные: go→went, eat→ate, see→saw, have→had, do→did, say→said.'},
+     {t:'Future — что буду делать',d:'"Tomorrow I will..." Просто добавляй will: "I will go, I will call, it will be sunny."'},
    ],
-   hw:['Выучил фразы покупок и погоды','Установил HelloTalk и написал первое сообщение'],
-   hwPrompt:'Тест — Миссия 9: покупки и погода. Сыграй продавца в магазине. По 3 фразы на каждую тему с русского на английский.'},
+   hw:['7 предложений о своём типичном дне','5 предложений о вчерашнем дне','5 планов на завтра'],
+   hwp:'Проверь ДЗ — Миссия 9 (Времена). Вот мои предложения — исправь ошибки, объясни по-русски. Потом задай 5 вопросов о моём дне чтобы я отвечал полными предложениями.'},
 
-  {id:10,phase:1,week:3,day:'Нед 3–4',title:'Настоящее время',icon:'⏰',xp:70,time:'35 мин',
+  {id:10,ph:1,icon:'👨‍👩‍👧',title:'Семья и люди',xp:60,time:'35 мин',day:'Нед 4',
    steps:[
-     {t:'Present Simple — правило',d:'I work / He works. К he/she/it добавляй -s. "Every day I wake up, drink coffee, go to work."'},
-     {t:'Рассказ о своём дне — 7 предложений',d:'Every day I... Составь и выучи наизусть. Это твой первый монолог.'},
-     {t:'HelloTalk — напиши о своём дне',d:'"Today I studied English and learned Present Simple!"'},
+     {t:'Словарь: семья',d:'mother, father, brother, sister, son, daughter, husband, wife, friend, married, single, children, grandparents.'},
+     {t:'Описать свою семью — 5 предложений',d:'"I have a sister. She is 25 years old. She works as a teacher. She likes music. We are close friends."'},
+     {t:'HelloTalk — первый контакт',d:'Скачай бесплатно. Найди носителя: "Hi! I\'m from Russia, learning English. Practice together?" Напиши ему о своей семье.'},
    ],
-   hw:['7 предложений о своём дне отправил боту','Anki каждый день'],
-   hwPrompt:'Проверь ДЗ — Миссия 10. Вот мои 7 предложений о типичном дне — исправь ошибки, объясни. Потом задай 5 вопросов о моём распорядке.'},
+   hw:['Выучил слова про семью','Написал 5 предложений о семье','Написал в HelloTalk'],
+   hwp:'Проверь ДЗ — Миссия 10 (Семья). Вот мои предложения — исправь ошибки. Потом задай 5 вопросов о моей семье по-английски — я отвечаю.'},
 
-  {id:11,phase:1,week:3,day:'Нед 3–4',title:'Прошлое и будущее',icon:'📅',xp:70,time:'40 мин',
+  {id:11,ph:2,icon:'🎧',title:'Живая речь — слушание',xp:80,time:'40 мин',day:'Мес 3',
    steps:[
-     {t:'Past Simple — вчера',d:'walk→walked, cook→cooked. Неправильные: go→went, eat→ate, see→saw, have→had, do→did, say→said, come→came, get→got.'},
-     {t:'Future — завтра',d:'"Tomorrow I will..." Просто добавляй "will": "I will go, I will call, it will be sunny."'},
-     {t:'5 предложений о вчера + 5 о завтра',d:'Напиши в HelloTalk. Партнёр исправит.'},
+     {t:'Anki — 10 мин (цель: 700 слов)',d:'Добавляй слова из видео которые смотришь — не только из колоды.'},
+     {t:'Подкаст 6 Minute English (BBC)',d:'6 минут в день. Слушай СНАЧАЛА без скрипта — записывай что понял в %. Потом читай скрипт. Замечай разрыв.'},
+     {t:'EnglishClass101 — 15 мин',d:'YouTube: диалоги в нормальном темпе. Уже не замедленная речь для учеников.'},
    ],
-   hw:['10 неправильных глаголов наизусть','5 предложений о вчера','5 планов на завтра'],
-   hwPrompt:'Тест — Миссия 11: времена. 1) Дай мне инфинитив — я скажу прошедшее время 2) Переведи 5 предложений в прошедшем.'},
+   hw:['Слушал 6 Minute English','Записал % понимания без скрипта','Anki каждый день'],
+   hwp:'Тест — Миссия 11 (Слушание). Продиктуй мне 5 коротких предложений на английском — я запишу. Потом задавай вопросы о разных темах — я отвечаю полными предложениями. По одному.'},
 
-  {id:12,phase:1,week:4,day:'Нед 4',title:'Семья и люди',icon:'👨‍👩‍👧',xp:60,time:'35 мин',
+  {id:12,ph:2,icon:'🗣',title:'Первый живой разговор',xp:100,time:'45 мин',day:'Мес 3',
    steps:[
-     {t:'Словарь: семья',d:'mother, father, brother, sister, son, daughter, husband, wife, friend, married, single, children.'},
-     {t:'Описать свою семью — 5 предложений',d:'"I have a sister. She is 25 years old. She works as a teacher. She likes music."'},
-     {t:'HelloTalk + BBC',d:'Расскажи партнёру о своей семье. Посмотри BBC видео о семье.'},
-   ],
-   hw:['Выучил слова про семью','Написал 5 предложений о семье боту'],
-   hwPrompt:'Проверь ДЗ — Миссия 12: семья. Исправь ошибки. Потом задай 5 вопросов о моей семье.'},
-
-  // PHASE 2 — Month 3-4
-  {id:13,phase:2,week:5,day:'Мес 3',title:'Живая речь — слушание',icon:'🎧',xp:80,time:'40 мин',
-   steps:[
-     {t:'Anki — 10 мин (цель к концу: 700 слов)',d:'Добавляй слова из видео которые смотришь — не только из колоды.'},
-     {t:'6 Minute English (BBC подкаст)',d:'6 минут в день. Слушай СНАЧАЛА без скрипта — записывай что понял. Потом читай скрипт. Замечай разрыв.'},
-     {t:'EnglishClass101 — 15 мин',d:'YouTube: диалоги в нормальном темпе. Уже не медленная речь для учеников.'},
-     {t:'Считай % понимания',d:'Сколько процентов понял без субтитров? Записывай — будешь видеть прогресс.'},
-   ],
-   hw:['Слушал 6 Minute English','Записал % понимания без субтитров','Anki каждый день'],
-   hwPrompt:'Еженедельный тест — Месяц 3. Диктант: продиктуй мне 5 коротких предложений — я запишу. Потом задавай вопросы о разных темах — я отвечаю полными предложениями.'},
-
-  {id:14,phase:2,week:6,day:'Мес 3',title:'Первый голосовой разговор',icon:'🗣',xp:100,time:'45 мин',
-   steps:[
-     {t:'HelloTalk — голосовое сообщение',d:'Запиши голосовое партнёру: расскажи о себе по-английски. 30–60 секунд. Это страшно — и это именно то что нужно.'},
+     {t:'HelloTalk — голосовое сообщение',d:'Запиши голосовое партнёру: расскажи о себе 30–60 секунд. Страшно? Это именно то что нужно.'},
      {t:'Tandem — установить',d:'Бесплатное приложение. Видеозвонки с носителями. Договорись на 10-минутный звонок.'},
-     {t:'Монолог 5 минут',d:'Выбери тему (My weekend / My city / My favourite food) и говори вслух 5 минут. Записывай себя.'},
+     {t:'Монолог 5 минут вслух',d:'Тема: My weekend / My city / My favourite food. Говори вслух 5 минут. Записывай себя.'},
    ],
-   hw:['Записал голосовое в HelloTalk','Установил Tandem','Провёл монолог 5 минут'],
-   hwPrompt:'Тест — Миссия 14. Начни со мной диалог: я гость в отеле, ты администратор. 6 реплик. После — разбор ошибок.'},
+   hw:['Голосовое в HelloTalk отправлено','Установил Tandem','Провёл монолог 5 мин'],
+   hwp:'Тест — Миссия 12. Начни со мной ролевой диалог: я гость в отеле, ты администратор. 6 реплик. После — подробный разбор ошибок с объяснением.'},
 
-  {id:15,phase:2,week:7,day:'Мес 4',title:'Сериал на английском',icon:'📺',xp:80,time:'45 мин',
+  {id:13,ph:2,icon:'📺',title:'Сериал на английском',xp:80,time:'45 мин',day:'Мес 4',
    steps:[
-     {t:'Friends / The Office / Brooklyn 99',d:'С английскими субтитрами (не русскими!). Language Reactor — бесплатное расширение Chrome: двойные субтитры + словарь.'},
-     {t:'Метод паузы',d:'Услышал незнакомое слово → пауза → добавь в Anki. Не больше 5–7 слов за сессию — иначе устанешь.'},
-     {t:'Пересказ эпизода',d:'После просмотра — 3–5 предложений что происходило в эпизоде. По-английски.'},
+     {t:'Friends / The Office / Brooklyn 99',d:'С английскими субтитрами — НЕ русскими. Language Reactor — бесплатное расширение Chrome: двойные субтитры + словарь.'},
+     {t:'Метод паузы',d:'Незнакомое слово → пауза → добавь в Anki. Не больше 5–7 слов за сессию.'},
+     {t:'Пересказ 3–5 предложений',d:'После просмотра — напиши по-английски что происходило в эпизоде.'},
    ],
-   hw:['Посмотрел 20 мин сериала на английском','Добавил 5 новых слов в Anki','Написал боту пересказ эпизода'],
-   hwPrompt:'Проверь ДЗ — Миссия 15. Вот мой пересказ эпизода — исправь ошибки. Потом расспроси меня о сюжете — я отвечаю по-английски.'},
+   hw:['Посмотрел 20 мин сериала','Добавил 5 новых слов в Anki','Написал пересказ эпизода'],
+   hwp:'Проверь ДЗ — Миссия 13 (Сериал). Вот мой пересказ эпизода — исправь ошибки. Потом расспроси меня о сюжете — я отвечаю по-английски.'},
 
-  {id:16,phase:2,week:8,day:'Мес 4',title:'Дневник на английском',icon:'📓',xp:80,time:'40 мин',
+  {id:14,ph:2,icon:'📓',title:'Дневник на английском',xp:80,time:'40 мин',day:'Мес 4',
    steps:[
      {t:'5 предложений о дне — каждый вечер',d:'"Today I woke up at 7. I had coffee. I worked. I was tired but happy." Не думай о грамматике — просто пиши.'},
-     {t:'Tandem — видеозвонок 10 мин',d:'Договорись с партнёром. 10 минут — ты по-английски, он по-русски. Это лучшая практика.'},
-     {t:'Запись голоса',d:'Запиши себя — монолог 2 минуты. Послушай. Сравни с записью через месяц — будешь удивлён.'},
+     {t:'Tandem — видеозвонок 10 мин',d:'Договорись с партнёром. 10 минут — ты по-английски, он по-русски.'},
+     {t:'Запись себя — 2 минуты',d:'Запиши монолог. Послушай. Сравни через месяц.'},
    ],
-   hw:['Написал дневник 3 дня из 7','Провёл Tandem звонок','Записал монолог и отправил боту'],
-   hwPrompt:'Итог Этапа 2 (Месяцы 3–4). Комплексный тест: 1) Расскажи о себе 2 минуты — я оцениваю 2) Словарь 15 слов A2 3) Общая оценка прогресса за 4 месяца.'},
+   hw:['Написал дневник 3+ дня','Провёл Tandem звонок','Записал монолог'],
+   hwp:'Итог Этапа 2 (Мес 3–4). Комплексный тест: 1) Расскажи о себе текстом — 5+ предложений по-английски — я оцениваю 2) Словарь: 15 слов уровня A2 с русского на английский 3) Общая честная оценка прогресса.'},
 
-  // PHASE 3 — Month 5-6
-  {id:17,phase:3,week:9,day:'Мес 5',title:'Фильмы без субтитров',icon:'🎬',xp:100,time:'60 мин',
+  {id:15,ph:3,icon:'🎬',title:'Фильмы без субтитров',xp:100,time:'60 мин',day:'Мес 5',
    steps:[
-     {t:'Фильм который ты уже видел по-русски',d:'Знакомый сюжет помогает понять незнакомые слова. Без субтитров — или с английскими. Никогда не с русскими.'},
-     {t:'Не понял — перемотай',d:'Максимум 2–3 раза. Если всё равно не понял — запиши фразу и спроси бота.'},
-     {t:'После фильма — монолог о нём',d:'5 минут вслух: о чём фильм, что понравилось, кто главный герой. По-английски.'},
+     {t:'Фильм который уже видел по-русски',d:'Знакомый сюжет помогает понять незнакомые слова. Без субтитров или с английскими. Никогда с русскими.'},
+     {t:'Не понял — перемотай',d:'Максимум 2–3 раза на одну фразу. Если всё равно не понял — запиши и спроси бота.'},
+     {t:'Монолог о фильме — 5 мин',d:'Что происходило, кто герои, что понравилось — по-английски вслух.'},
    ],
-   hw:['Посмотрел 40 мин фильма','Написал монолог о фильме боту'],
-   hwPrompt:'Тест — Миссия 17. Начни со мной диалог на вечеринке — ты местный, я иностранец. Веди 10 реплик. Потом разбор: что хорошо, что улучшить.'},
+   hw:['Посмотрел 40 мин фильма','Написал монолог о фильме'],
+   hwp:'Тест — Миссия 15. Начни со мной диалог: мы встретились на вечеринке, ты местный, я иностранец. 10 реплик. Потом разбор: что хорошо, что улучшить.'},
 
-  {id:18,phase:3,week:10,day:'Мес 5',title:'15-минутный разговор',icon:'🎯',xp:120,time:'45 мин',
+  {id:16,ph:3,icon:'🎯',title:'15-минутный разговор',xp:120,time:'45 мин',day:'Мес 5–6',
    steps:[
-     {t:'Tandem — 20 мин звонок',d:'Старайся говорить больше с каждым разом. Договорись с постоянным партнёром — регулярность важнее качества.'},
-     {t:'Темы для разговора',d:'My city / My job / My travel experience / My plans for summer / Movies I like. Подготовь 5–7 предложений заранее.'},
-     {t:'Запись и анализ',d:'Запиши разговор (с согласия партнёра). Послушай — что было трудно? Какие слова не знал?'},
+     {t:'Tandem — 20 мин звонок',d:'Говори больше с каждым разом. Постоянный партнёр лучше случайных.'},
+     {t:'Подготовь темы заранее',d:'My city / My job / My travel / My plans / Movies I like. 5–7 предложений по каждой теме.'},
+     {t:'Запись и анализ',d:'Запиши разговор. Послушай — что было трудно? Какие слова не знал? Добавь в Anki.'},
    ],
-   hw:['Провёл 20-минутный Tandem звонок','Написал боту что было трудно'],
-   hwPrompt:'Практика — Миссия 18. Симуляция интервью на работу: ты менеджер, я кандидат. 8 вопросов-ответов. После — оценка уверенности речи.'},
+   hw:['Провёл 20-минутный Tandem звонок','Написал что было трудно'],
+   hwp:'Практика — Миссия 16. Симуляция собеседования на работу: ты менеджер, я кандидат. 8 вопросов-ответов. После — оценка уверенности речи и главные ошибки.'},
 
-  {id:19,phase:3,week:11,day:'Мес 6',title:'Финальная прямая',icon:'🏃',xp:120,time:'45 мин',
+  {id:17,ph:3,icon:'🏃',title:'Финальная прямая',xp:120,time:'45 мин',day:'Мес 6',
    steps:[
-     {t:'Anki — только новые слова из жизни',d:'Колоду можно замедлить. Теперь добавляй слова из фильмов, подкастов, разговоров — живой язык.'},
-     {t:'Подкаст для носителей',d:'NPR Short Wave / Stuff You Should Know — реальная речь в реальном темпе. Понимаешь 50%+? Ты B1.'},
-     {t:'Дневник — 5 предложений каждый день',d:'Отправляй боту раз в неделю. Видишь как улучшается?'},
+     {t:'Подкаст для носителей',d:'NPR Short Wave / Stuff You Should Know — реальная речь в реальном темпе. Понимаешь 50%+? Ты уровень B1.'},
+     {t:'Дневник 5 предложений каждый день',d:'Отправляй учителю раз в неделю. Видишь как улучшается?'},
+     {t:'Anki — только живые слова',d:'Добавляй слова из фильмов, подкастов, разговоров — живой язык важнее колоды.'},
    ],
-   hw:['Слушал подкаст для носителей','Написал дневник 5 дней','Дал боту оценку своего прогресса'],
-   hwPrompt:'Предфинальный тест — Миссия 19. Расскажи о своей жизни за последние 6 месяцев изучения английского — по-английски. Потом оцени мой уровень честно.'},
+   hw:['Слушал подкаст для носителей','Написал дневник 5 дней'],
+   hwp:'Предфинальный тест — Миссия 17. Расскажи о своей жизни за 6 месяцев изучения английского — по-английски, 5+ предложений. Я оцениваю честно.'},
 
-  {id:20,phase:3,week:12,day:'Финал',title:'🏆 ФИНАЛЬНЫЙ ЭКЗАМЕН',icon:'🏆',xp:200,time:'60 мин',
+  {id:18,ph:3,icon:'🏆',title:'ФИНАЛЬНЫЙ ЭКЗАМЕН',xp:200,time:'60 мин',day:'Финал',
    steps:[
-     {t:'Тест 1: Понимание',d:'Включи подкаст для носителей — 5 минут. Перескажи содержание по-английски.'},
-     {t:'Тест 2: Разговор 15 минут',d:'Диалог с ботом — ты встретил иностранца в аэропорту. 15 реплик минимум.'},
-     {t:'Тест 3: Словарный запас',d:'20 слов уровня B1 — перевод без словаря.'},
+     {t:'Тест 1: Понимание',d:'Включи любой подкаст для носителей — 5 минут. Перескажи содержание по-английски учителю.'},
+     {t:'Тест 2: Разговор',d:'Диалог с учителем — ты встретил иностранца в аэропорту. 15 реплик минимум.'},
+     {t:'Тест 3: Словарь',d:'20 слов уровня B1 — перевод без словаря.'},
    ],
-   hw:['Прошёл все три теста','Получил итоговую оценку бота'],
-   hwPrompt:'ФИНАЛЬНЫЙ ЭКЗАМЕН — 6 месяцев English Quest! Три блока: 1) Диалог 15 реплик: ты иностранец в аэропорту 2) Словарный тест 20 слов B1 3) Диктант 5 предложений. Дай честную оценку уровня A1→B1.'},
+   hw:['Прошёл все три блока','Получил итоговую оценку'],
+   hwp:'ФИНАЛЬНЫЙ ЭКЗАМЕН — 6 месяцев English Quest! Три блока: 1) Диалог 15 реплик: ты иностранец в аэропорту 2) Словарный тест 20 слов B1 3) Диктант 5 предложений. Дай честную оценку уровня.'},
 ];
 
-const PHASE_NAMES = ['','🟢 Фундамент (мес 1–2)','🔵 Понимание (мес 3–4)','🟣 Свобода (мес 5–6)'];
-const PHASE_COLORS = ['','var(--green)','var(--accent)','var(--gold)'];
-const PHASE_FILLS = ['','fill-green','fill-blue','fill-gold'];
+// ── DIALOG STATE ──
+let dialogHistory=[];
+let dialogSituation='';
+let testHistory=[];
+let testCount=0;
 
-// ── XP & LEVELS ──
-function getLevel(xp){
-  let l=0;
-  for(let i=0;i<LEVELS.length;i++){if(xp>=LEVELS[i].xp)l=i;}
-  return l;
-}
-function getLevelPct(xp){
-  const l=getLevel(xp);
-  const cur=LEVELS[l].xp;
-  const next=LEVELS[l+1]?LEVELS[l+1].xp:cur+500;
-  return Math.min(100,Math.round(((xp-cur)/(next-cur))*100));
-}
-function getLevelNextXp(xp){
-  const l=getLevel(xp);
-  return LEVELS[l+1]?LEVELS[l+1].xp:LEVELS[l].xp+500;
-}
-
-// ── RENDER HOME ──
-function renderHome(){
-  const l=getLevel(S.xp);
-  document.getElementById('lvlNum').textContent=l+1;
-  document.getElementById('lvlName').textContent=LEVELS[l].name;
-  const nextXp=getLevelNextXp(S.xp);
-  document.getElementById('lvlSub').textContent=`${S.xp} / ${nextXp} XP`;
-  document.getElementById('xpTotal').textContent=S.xp+' XP';
-  document.getElementById('xpFill').style.width=getLevelPct(S.xp)+'%';
-  document.getElementById('s-streak').textContent=S.streak;
-  document.getElementById('s-missions').textContent=S.missions;
-  document.getElementById('s-words').textContent=S.words;
-
-  // Today mission
-  const doneIds=Object.keys(S.done).map(Number);
-  const next=MISSIONS.find(m=>!S.done[m.id])||MISSIONS[MISSIONS.length-1];
-  document.getElementById('todayIcon').textContent=next.icon;
-  document.getElementById('todayTitle').textContent=`Миссия ${next.id}: ${next.title}`;
-  const tt=document.getElementById('todayTasks');
-  tt.innerHTML=next.steps.slice(0,3).map(s=>`<div class="today-task"><div class="task-dot"></div>${s.t}</div>`).join('');
-
-  // Map preview
-  const mp=document.getElementById('mapPreview');
-  const preview=MISSIONS.slice(0,5);
-  mp.innerHTML=preview.map(m=>{
-    const isDone=S.done[m.id];
-    const isCur=!S.done[m.id]&&(m.id===1||S.done[m.id-1]);
-    const cls=isDone?'done':(isCur?'current':'locked');
-    const badge=isDone?'<span class="mi-badge badge-done">✓ Готово</span>':(isCur?'<span class="mi-badge badge-cur">▶ Сейчас</span>':'<span class="mi-badge badge-lock">🔒</span>');
-    const icoCls=isDone?'d':(isCur?'c':'l');
-    return `<div class="map-item ${cls}" onclick="${isCur?'goScreen(\'map\',1)':''}">
-      <div class="mi-icon ${icoCls}">${m.icon}</div>
-      <div class="mi-info"><div class="mi-name">Миссия ${m.id}: ${m.title}</div><div class="mi-sub">${m.time} · ${m.xp} XP</div></div>
-      <div class="mi-right">${badge}</div>
-    </div>`;
-  }).join('')+'<div style="text-align:center;padding:10px 0"><span style="font-size:12px;color:var(--muted);cursor:pointer" onclick="goScreen(\'map\',1)">Показать все миссии →</span></div>';
+// ── API CALL ──
+async function askClaude(messages,system){
+  const body={
+    model:'claude-sonnet-4-6',
+    max_tokens:1200,
+    system: system||`Ты учитель английского языка. Ученик учит с нуля. Правила: 1) Отвечай по-русски (объяснения). 2) Английские примеры — по-английски. 3) Будь конкретным и добрым. 4) Исправляй ошибки — объясняй каждую по-русски. 5) Всегда давай практический совет в конце.`,
+    messages
+  };
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  const d=await r.json();
+  if(d.content&&d.content[0])return d.content[0].text;
+  throw new Error(JSON.stringify(d));
 }
 
-// ── RENDER MAP ──
+function showLoading(elId){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  el.parentElement.querySelector('.response-box')&&(el.parentElement.querySelector('.response-box').style.display='block');
+  el.innerHTML='<div class="resp-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Учитель думает...</div>';
+}
+function showResp(boxId,txtId,text){
+  const box=document.getElementById(boxId);
+  const txt=document.getElementById(txtId);
+  if(box)box.classList.add('show');
+  if(txt)txt.textContent=text;
+}
+
+// ── PRACTICE SUBMIT (write/hw) ──
+async function practiceSubmit(type){
+  const inpId=type==='write'?'inp-write':'inp-hw';
+  const inp=document.getElementById(inpId);
+  const text=inp.value.trim();
+  if(!text){showToast('Напиши что-нибудь сначала!');return;}
+
+  const boxId='resp-'+type;
+  const txtId='rtxt-'+type;
+  const box=document.getElementById(boxId);
+  const txt=document.getElementById(txtId);
+  box.classList.add('show');
+  txt.innerHTML='<div class="resp-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Учитель проверяет...</div>';
+
+  const prompt=type==='write'
+    ?`Ученик написал по-английски:\n\n"${text}"\n\nПроверь. Дай обратную связь:\n✅ Что хорошо\n❌ Ошибки (каждую объясни по-русски)\n💡 Совет\n⭐ Оценка A/B/C`
+    :`Ученик сдаёт ДЗ:\n\n"${text}"\n\nПроверь подробно. Оцени: что правильно, что нет, что улучшить.`;
+
+  try{
+    const ans=await askClaude([{role:'user',content:prompt}]);
+    txt.textContent=ans;
+    S.missions=Math.max(S.missions,1);save();renderHome();
+  }catch(e){
+    txt.textContent='Ошибка соединения. Попробуй ещё раз.';
+  }
+}
+
+// ── SPEAKING PROMPT ──
+async function practicePrompt(type){
+  const boxId='resp-'+type;
+  const txtId='rtxt-'+type;
+  const box=document.getElementById(boxId);
+  const txt=document.getElementById(txtId);
+  box.classList.add('show');
+  txt.innerHTML='<div class="resp-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Подбираю фразы...</div>';
+
+  try{
+    const ans=await askClaude([{role:'user',content:'Дай мне 5 коротких фраз для shadowing — повторения вслух. Уровень: начинающий (A1). После каждой фразы напиши её транскрипцию по-русски (как читается) и перевод. Формат: 1. [фраза] / [как читается] / [перевод]'}]);
+    txt.textContent=ans;
+  }catch(e){
+    txt.textContent='Ошибка. Попробуй ещё раз.';
+  }
+}
+
+// ── DIALOG ──
+const DIALOG_PROMPTS={
+  hotel:'Сыграй сотрудника отеля. Я — турист который заселяется. Начни первым: поприветствуй меня по-английски. После каждой моей реплики: 1) Ответь в роли (по-английски) 2) Исправь мои ошибки по-русски если есть.',
+  shop:'Сыграй продавца в магазине одежды. Я — покупатель. Начни по-английски. После каждой моей реплики — ответь в роли + исправь ошибки по-русски.',
+  airport:'Сыграй сотрудника аэропорта. Я — пассажир у стойки регистрации. Начни по-английски. После каждой моей реплики — ответь + исправь ошибки по-русски.',
+  cafe:'Сыграй бариста в кафе. Я — клиент. Начни по-английски. После каждой моей реплики — ответь + исправь ошибки по-русски.',
+  street:'Сыграй местного жителя. Я — турист который потерялся. Начни по-английски спроси чем помочь. После каждой реплики — ответь + исправь ошибки по-русски.',
+  meet:'Сыграй иностранца на вечеринке который хочет познакомиться. Начни по-английски. После каждой моей реплики — ответь + исправь ошибки по-русски.'
+};
+
+async function startDialog(situation){
+  dialogSituation=situation;
+  dialogHistory=[];
+  const box=document.getElementById('resp-dialog-start');
+  const txt=document.getElementById('rtxt-dialog-start');
+  box.classList.add('show');
+  txt.innerHTML='<div class="resp-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Начинаю диалог...</div>';
+
+  const sysPrompt=DIALOG_PROMPTS[situation];
+  try{
+    const ans=await askClaude([{role:'user',content:'Начни сцену. '+sysPrompt}],sysPrompt);
+    txt.textContent=ans;
+    dialogHistory=[
+      {role:'user',content:'Начни сцену.'},
+      {role:'assistant',content:ans}
+    ];
+    // Show input
+    document.getElementById('inp-dialog').style.display='block';
+    document.getElementById('btn-dialog-send').style.display='flex';
+    // Unlock achievement
+    if(!S.done['ach_dialog']){S.done['ach_dialog']=true;save();}
+  }catch(e){
+    txt.textContent='Ошибка. Попробуй ещё раз.';
+  }
+}
+
+async function dialogReply(){
+  const inp=document.getElementById('inp-dialog');
+  const text=inp.value.trim();
+  if(!text){showToast('Напиши свой ответ!');return;}
+  inp.value='';
+
+  const box=document.getElementById('resp-dialog-reply');
+  const txt=document.getElementById('rtxt-dialog-reply');
+  box.classList.add('show');
+  txt.innerHTML='<div class="resp-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Учитель отвечает...</div>';
+
+  dialogHistory.push({role:'user',content:text});
+
+  try{
+    const ans=await askClaude(dialogHistory,DIALOG_PROMPTS[dialogSituation]);
+    txt.textContent=ans;
+    dialogHistory.push({role:'assistant',content:ans});
+  }catch(e){
+    txt.textContent='Ошибка. Попробуй ещё раз.';
+  }
+}
+
+// ── TEST ──
+const TEST_SYS='Ты проводишь словарный тест для начинающего (A1-A2). Давай по одному вопросу. Формат вопроса: "Как по-английски: [русское слово]?" или "Переведи: [английское слово]". После ответа ученика: 1) Скажи правильно/неправильно 2) Дай правильный ответ если ошибся 3) Напиши СЛЕДУЮЩИЙ ВОПРОС или ТЕСТ ЗАВЕРШЁН если это был 10-й вопрос.';
+let testMessages=[];
+
+async function startTest(){
+  testMessages=[];
+  testCount=0;
+  document.getElementById('btn-test-start').style.display='none';
+  document.getElementById('inp-test').style.display='block';
+  document.getElementById('btn-test-send').style.display='flex';
+
+  const box=document.getElementById('resp-test-q');
+  const txt=document.getElementById('rtxt-test-q');
+  box.classList.add('show');
+  txt.innerHTML='<div class="resp-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Подбираю вопрос...</div>';
+
+  try{
+    const ans=await askClaude([{role:'user',content:'Начни тест. Задай первый вопрос.'}],TEST_SYS);
+    txt.textContent=ans;
+    testMessages=[{role:'user',content:'Начни тест.'},{role:'assistant',content:ans}];
+    testCount=1;
+  }catch(e){txt.textContent='Ошибка. Обнови страницу.';}
+}
+
+async function testAnswer(){
+  const inp=document.getElementById('inp-test');
+  const text=inp.value.trim();
+  if(!text){showToast('Напиши ответ!');return;}
+  inp.value='';
+
+  const boxA=document.getElementById('resp-test-a');
+  const txtA=document.getElementById('rtxt-test-a');
+  boxA.classList.add('show');
+  txtA.innerHTML='<div class="resp-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+
+  testMessages.push({role:'user',content:text});
+
+  try{
+    const ans=await askClaude(testMessages,TEST_SYS);
+    txtA.textContent=ans;
+    testMessages.push({role:'assistant',content:ans});
+    testCount++;
+
+    if(ans.includes('ТЕСТ ЗАВЕРШЁН')||testCount>10){
+      document.getElementById('inp-test').style.display='none';
+      document.getElementById('btn-test-send').style.display='none';
+      document.getElementById('btn-test-start').textContent='🔄 Пройти ещё раз';
+      document.getElementById('btn-test-start').style.display='flex';
+    } else {
+      // Move next question to question box
+      const qbox=document.getElementById('resp-test-q');
+      const qtxt=document.getElementById('rtxt-test-q');
+      qbox.classList.add('show');
+      // Extract next question from answer (last sentence usually)
+      qtxt.textContent=ans;
+    }
+  }catch(e){txtA.textContent='Ошибка. Попробуй ещё раз.';}
+}
+
+// ── MAP RENDER ──
 function renderMap(){
-  const phases=[1,2,3];
+  const phs=[1,2,3];
+  const phNames=['','🟢 Этап 1 — Фундамент (мес 1–2)','🔵 Этап 2 — Понимание (мес 3–4)','🟣 Этап 3 — Свобода (мес 5–6)'];
   let html='';
-  phases.forEach(ph=>{
-    const missions=MISSIONS.filter(m=>m.phase===ph);
-    const donePh=missions.filter(m=>S.done[m.id]).length;
-    const pct=Math.round((donePh/missions.length)*100);
-    const fillClass=['','fill-green','fill-blue','fill-gold'][ph];
-    html+=`<div class="phase-block">
-      <div class="phase-title-row">
-        <div class="phase-num pn-${ph}">${ph}</div>
-        <div><div class="phase-name">${PHASE_NAMES[ph]}</div><div class="phase-months">${donePh}/${missions.length} миссий · ${pct}%</div></div>
-      </div>
-      <div class="phase-prog-bar"><div class="phase-prog-fill ${fillClass}" style="width:${pct}%"></div></div>`;
-    missions.forEach((m,i)=>{
-      const isDone=S.done[m.id];
-      const prevDone=m.id===1||S.done[m.id-1];
+  phs.forEach(ph=>{
+    const mms=MS.filter(m=>m.ph===ph);
+    const dn=mms.filter(m=>S.done['m'+m.id]).length;
+    const pct=Math.round((dn/mms.length)*100);
+    const pfCls=['','pf1','pf2','pf3'][ph];
+    const pnCls=['','pn1','pn2','pn3'][ph];
+    html+=`<div class="ph-block">
+      <div class="ph-row"><div class="ph-n ${pnCls}">${ph}</div>
+        <div><div class="ph-nm">${phNames[ph]}</div><div class="ph-mo">${dn}/${mms.length} миссий · ${pct}%</div></div></div>
+      <div class="ph-bar"><div class="ph-fill ${pfCls}" style="width:${pct}%"></div></div>`;
+
+    mms.forEach(m=>{
+      const isDone=!!S.done['m'+m.id];
+      const prevDone=m.id===1||!!S.done['m'+(m.id-1)];
       const isLocked=!isDone&&!prevDone;
       const isActive=!isDone&&prevDone;
-      const cls=isDone?'done-m':(isActive?'active-m':(isLocked?'locked':''));
-      const numCls=isDone?'mn-done':(isActive?'mn-active':'mn-lock');
-      const statusIcon=isDone?'✅':(isActive?'⚔️':'🔒');
-      html+=`<div class="mission-card ${cls}" id="mc-${m.id}" ${!isLocked?`onclick="toggleMission(${m.id})"`:''}> 
-        <div class="mission-head">
-          <div class="mission-num ${numCls}">${m.id}</div>
-          <div class="mission-info">
-            <div class="mission-name">${m.icon} ${m.title}</div>
-            <div class="mission-meta"><span class="mission-xp">+${m.xp} XP</span><span class="mission-time">${m.time}</span>${m.day?`<span class="mission-time">· ${m.day}</span>`:''}</div>
+      const cls=isDone?'mc-done':(isActive?'mc-active':(isLocked?'mc-locked':''));
+      const nCls=isDone?'mn-d':(isActive?'mn-a':'mn-l');
+      const stIco=isDone?'✅':(isActive?'⚔️':'🔒');
+      html+=`<div class="mc ${cls}" id="mc${m.id}">
+        <div class="mc-head" onclick="toggleMC(${m.id})">
+          <div class="mc-n ${nCls}">${m.id}</div>
+          <div class="mc-i">
+            <div class="mc-nm">${m.icon} ${m.title}</div>
+            <div class="mc-meta"><span class="mc-xp">+${m.xp} XP</span><span class="mc-time">${m.time}</span><span class="mc-time">· ${m.day}</span></div>
           </div>
-          <div class="mission-status">${statusIcon}</div>
+          <div class="mc-st">${stIco}</div>
         </div>
-        <div class="mission-body">
-          <div class="mission-steps">${m.steps.map((s,si)=>`<div class="ms"><div class="ms-num">${si+1}</div><div><div class="ms-title">${s.t}</div><div class="ms-desc">${s.d}</div></div></div>`).join('')}</div>
-          <div class="hw-block">
-            <div class="hw-head">📝 Домашнее задание</div>
-            ${m.hw.map((h,hi)=>`<div class="hw-item" onclick="toggleHW(${m.id},${hi})"><div class="hw-cb ${S.done['hw_'+m.id+'_'+hi]?'on':''}" id="hwcb-${m.id}-${hi}"></div><span>${h}</span></div>`).join('')}
+        <div class="mc-body">
+          <div class="steps-list">${m.steps.map((s,i)=>`<div class="step-row"><div class="step-n">${i+1}</div><div><div class="step-t">${s.t}</div><div class="step-d">${s.d}</div></div></div>`).join('')}</div>
+          <div class="hw-box">
+            <div class="hw-hd">📝 Домашнее задание</div>
+            ${m.hw.map((h,hi)=>`<div class="hw-item" onclick="toggleHW(${m.id},${hi})"><div class="hw-cb ${S.done['hw'+m.id+'_'+hi]?'on':''}" id="hwcb${m.id}_${hi}"></div><span class="hw-txt">${h}</span></div>`).join('')}
           </div>
-          <button class="mission-btn ${isDone?'done-btn':''}" onclick="sendHW(MISSIONS.find(x=>x.id===${m.id}).hwPrompt)">${isDone?'✅ Пройдено — повторить тест':'📤 Сдать ДЗ учителю'}</button>
-          ${!isDone?`<button class="mission-btn" style="background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.25);margin-top:6px" onclick="completeMission(${m.id})">✅ Отметить как выполненную</button>`:''}
+          <button class="btn-main" onclick="sendMissionHW(${m.id})">📤 Сдать ДЗ учителю</button>
+          ${!isDone?`<button class="btn-main btn-mark" onclick="completeMission(${m.id})">✅ Отметить как выполненную</button>`:'<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--green)">✅ Миссия выполнена!</div>'}
         </div>
       </div>`;
     });
     html+='</div>';
   });
-  document.getElementById('mapContent').innerHTML=html;
+  document.getElementById('map-content').innerHTML=html;
 }
 
-// ── RENDER PROFILE ──
-function renderProfile(){
-  const l=getLevel(S.xp);
-  document.getElementById('profLevel').textContent=`Уровень ${l+1} — ${LEVELS[l].name}`;
-  document.getElementById('p-streak').textContent=S.streak;
-  document.getElementById('p-missions').textContent=S.missions;
-  document.getElementById('p-words').textContent=S.words;
-  // achievements
-  const achs=[true, S.streak>=7, S.missions>=10, S.words>=100, S.missions>=5, S.missions>=12];
-  achs.forEach((a,i)=>{
-    const el=document.getElementById('ach-'+i);
-    if(el){el.classList.toggle('locked',!a);el.classList.toggle('unlocked',a);}
-  });
-}
-
-// ── TOGGLE MISSION ──
-function toggleMission(id){
-  const card=document.getElementById('mc-'+id);
-  if(!card)return;
-  document.querySelectorAll('.mission-card.open').forEach(c=>{if(c!==card)c.classList.remove('open');});
-  card.classList.toggle('open');
-  if(card.classList.contains('open')){
-    setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
-  }
-}
-
-// ── HW CHECKBOX ──
-function toggleHW(mId,hi){
-  const key='hw_'+mId+'_'+hi;
-  S.done[key]=!S.done[key];
-  const el=document.getElementById('hwcb-'+mId+'-'+hi);
-  if(el)el.classList.toggle('on',S.done[key]);
-  save();
+// ── MISSION HW — открывает практику с нужным промптом ──
+function sendMissionHW(id){
+  const m=MS.find(x=>x.id===id);
+  if(!m)return;
+  // Go to practice tab, fill hw textarea
+  goNav('practice',2);
+  setTimeout(()=>{
+    const inp=document.getElementById('inp-hw');
+    if(inp)inp.value=`[Миссия ${id}: ${m.title}]\n\nМоё задание: `;
+    inp&&inp.focus();
+    inp&&inp.scrollIntoView({behavior:'smooth',block:'center'});
+    // Show the HW card
+    const hwCards=document.querySelector('.pr-card:last-child');
+    if(hwCards)hwCards.scrollIntoView({behavior:'smooth',block:'start'});
+  },300);
 }
 
 // ── COMPLETE MISSION ──
 function completeMission(id){
-  if(S.done[id])return;
-  const m=MISSIONS.find(x=>x.id===id);
+  if(S.done['m'+id])return;
+  const m=MS.find(x=>x.id===id);
   if(!m)return;
-  S.done[id]=true;
+  S.done['m'+id]=true;
   S.missions++;
   S.xp+=m.xp;
-  S.words=Math.min(1500,S.missions*12);
-  // streak
+  S.words=Math.min(1500,S.missions*13);
   const today=new Date().toDateString();
   const yest=new Date(Date.now()-86400000).toDateString();
   if(S.lastDate===yest)S.streak++;
@@ -751,59 +953,102 @@ function completeMission(id){
   S.lastDate=today;
   save();
   confetti();
-  showToast(`+${m.xp} XP! Миссия ${id} выполнена! 🎉`);
-  setTimeout(()=>{renderMap();renderHome();renderProfile();},400);
+  showToast(`🎉 +${m.xp} XP! Миссия ${id} выполнена!`);
+  setTimeout(()=>{renderMap();renderHome();renderProfile();},300);
+}
+
+function toggleMC(id){
+  const el=document.getElementById('mc'+id);
+  if(!el||el.classList.contains('mc-locked'))return;
+  document.querySelectorAll('.mc.open').forEach(c=>{if(c!==el)c.classList.remove('open');});
+  el.classList.toggle('open');
+  if(el.classList.contains('open'))setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+
+function toggleHW(mId,hi){
+  const k='hw'+mId+'_'+hi;
+  S.done[k]=!S.done[k];
+  const el=document.getElementById('hwcb'+mId+'_'+hi);
+  if(el)el.classList.toggle('on',S.done[k]);
+  save();
+}
+
+// ── HOME RENDER ──
+function renderHome(){
+  const l=getLv(S.xp);
+  document.getElementById('h-lv').textContent=l+1;
+  document.getElementById('h-lvnm').textContent=LVS[l].n;
+  const nx=LVS[l+1]?LVS[l+1].x:LVS[l].x+500;
+  document.getElementById('h-lvsub').textContent=`${S.xp} / ${nx} XP`;
+  document.getElementById('h-xp').textContent=S.xp+' XP';
+  document.getElementById('h-xpf').style.width=getLvPct(S.xp)+'%';
+  document.getElementById('h-str').textContent=S.streak;
+  document.getElementById('h-mis').textContent=S.missions;
+  document.getElementById('h-wrd').textContent=S.words;
+
+  const next=MS.find(m=>!S.done['m'+m.id])||MS[MS.length-1];
+  document.getElementById('h-tico').textContent=next.icon;
+  document.getElementById('h-ttit').textContent=`Миссия ${next.id}: ${next.title}`;
+  document.getElementById('h-tsteps').innerHTML=next.steps.slice(0,3).map(s=>`<div class="ts"><div class="ts-dot"></div>${s.t}</div>`).join('');
+
+  const mp=document.getElementById('h-map');
+  mp.innerHTML=MS.slice(0,5).map(m=>{
+    const isDone=!!S.done['m'+m.id];
+    const prev=m.id===1||!!S.done['m'+(m.id-1)];
+    const isCur=!isDone&&prev;
+    const cls=isDone?'dn':(isCur?'cur':'lk');
+    const icoCls=isDone?'ico-d':(isCur?'ico-c':'ico-l');
+    const badge=isDone?'<span class="mpi-b b-d">✓ Готово</span>':(isCur?'<span class="mpi-b b-c">▶ Сейчас</span>':'<span class="mpi-b b-l">🔒</span>');
+    return `<div class="mpi ${cls}" onclick="${isCur?'goNav(\'map\',1)':''}">
+      <div class="mpi-ico ${icoCls}">${m.icon}</div>
+      <div class="mpi-i"><div class="mpi-n">Миссия ${m.id}: ${m.title}</div><div class="mpi-s">${m.time} · ${m.xp} XP</div></div>
+      ${badge}</div>`;
+  }).join('')+'<div style="text-align:center;padding:8px 0"><span style="font-size:12px;color:var(--muted);cursor:pointer" onclick="goNav(\'map\',1)">Все миссии →</span></div>';
+}
+
+// ── PROFILE RENDER ──
+function renderProfile(){
+  const l=getLv(S.xp);
+  document.getElementById('p-lv').textContent=`Уровень ${l+1} — ${LVS[l].n}`;
+  document.getElementById('p-str').textContent=S.streak;
+  document.getElementById('p-mis').textContent=S.missions;
+  document.getElementById('p-wrd').textContent=S.words;
+  const achs=[true,S.streak>=7,S.missions>=10,S.words>=100,!!S.done['ach_dialog'],S.missions>=12];
+  achs.forEach((a,i)=>{
+    const el=document.getElementById('a'+i);
+    if(el){el.classList.toggle('lk',!a);el.classList.toggle('ul',a);}
+  });
 }
 
 // ── NAVIGATION ──
-const screens=['home','map','practice','profile'];
-function goScreen(id,navIdx){
-  screens.forEach(s=>document.getElementById(s).classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('on',i===navIdx));
-  if(id==='map')renderMap();
-  if(id==='profile')renderProfile();
-  window.scrollTo(0,0);
-}
-function goMap(){goScreen('map',1);}
-
-// ── SEND TO BOT ──
-function sendHW(text){
-  if(tg&&tg.sendData){
-    try{tg.sendData(text);showToast('Отправлено учителю!');}
-    catch(e){alert('Открой через Telegram бота!');}
-  } else {
-    alert('Задание: '+text.substring(0,80)+'...\n\nОткрой через Telegram бота чтобы отправить.');
-  }
+function goNav(screen,navIdx){
+  ['home','map','practice','profile'].forEach(s=>document.getElementById('sc-'+s).classList.remove('on'));
+  document.getElementById('sc-'+screen).classList.add('on');
+  document.querySelectorAll('.ni').forEach((n,i)=>n.classList.toggle('on',i===navIdx));
+  if(screen==='map')renderMap();
+  if(screen==='profile')renderProfile();
+  document.getElementById('sc-'+screen).scrollTop=0;
 }
 
 // ── TOAST ──
 function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),3000);
 }
 
 // ── CONFETTI ──
 function confetti(){
   const colors=['#7c6af7','#f59e0b','#10b981','#3b82f6','#ec4899'];
-  for(let i=0;i<18;i++){
-    const p=document.createElement('div');
-    p.className='particle';
-    p.style.cssText=`left:${20+Math.random()*60}%;top:${-20+Math.random()*30}%;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.4}s;animation-duration:${1+Math.random()*0.8}s`;
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(),2000);
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');p.className='particle';
+    p.style.cssText=`left:${15+Math.random()*70}%;top:${Math.random()*30}%;width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;background:${colors[~~(Math.random()*colors.length)]};animation-delay:${Math.random()*0.5}s;animation-duration:${1.2+Math.random()}s`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),2200);
   }
 }
 
-// ── SAVE ──
-function save(){localStorage.setItem('eq_state',JSON.stringify(S));}
-
 // ── INIT ──
 renderHome();
-// Unlock first achievement always
-if(!S.achiev[0]){S.achiev[0]=true;save();}
 </script>
 </body>
 </html>
